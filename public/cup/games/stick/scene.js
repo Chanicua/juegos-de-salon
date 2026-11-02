@@ -15,6 +15,19 @@ export const RESCATE_MS = ASOMA_MS + GANCHO_MS + TENSA_MS + SUBIDA_MS + SALTO_MS
 const NEON = [[255, 46, 136], [255, 122, 26], [255, 210, 63], [157, 255, 58], [46, 230, 214], [138, 77, 255]];
 const rgb = ([r, g, b], a = 1) => `rgba(${r},${g},${b},${a})`;
 const GOLD = [255, 210, 63];
+/**
+ * The time of day: every DAY_EVERY points the sky moves on a stage, from the night to dawn, the morning
+ * and the full day, which stays. Each stage is the sky's top and bottom, the two ranges' colours and their
+ * ridges' light.
+ */
+export const DAY_EVERY = 15;
+const CIELOS = [
+  { top: [21, 7, 38], low: [42, 10, 74], far: [34, 10, 62], near: [21, 7, 38], borde: [190, 160, 255] },     // night
+  { top: [38, 22, 92], low: [255, 122, 90], far: [74, 36, 104], near: [40, 16, 62], borde: [255, 170, 120] }, // dawn
+  { top: [90, 150, 230], low: [255, 200, 150], far: [110, 110, 170], near: [62, 52, 110], borde: [255, 225, 170] }, // morning
+  { top: [70, 160, 245], low: [180, 225, 255], far: [120, 160, 200], near: [70, 105, 150], borde: [255, 255, 255] }, // day
+];
+const mezcla = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
 const easeIn = k => k * k;
 const easeOut = k => 1 - (1 - k) ** 3;
 const clamp01 = k => Math.max(0, Math.min(1, k));
@@ -23,7 +36,8 @@ const clamp01 = k => Math.max(0, Math.min(1, k));
 const cumbre = (x, f) => 1 - Math.abs(Math.sin(x * 0.009 * f)) * 0.6 - Math.abs(Math.sin(x * 0.021 * f + 1.7)) * 0.3 - Math.abs(Math.sin(x * 0.047 * f + 0.4)) * 0.1;
 
 /**
- * The scene on a canvas: the night (stars, a moon, two ranges of mountains moving slower than the
+ * The scene on a canvas: the sky (the night with stars and a moon, turning to dawn and day every
+ * DAY_EVERY points, with a rising sun), two ranges of mountains moving slower than the
  * pillars), the pillars with their flags, the stick, the ninja, and what celebrates (pulses, sparks,
  * floating points). The canvas is transparent: it stands on the app's own night.
  */
@@ -31,6 +45,7 @@ export function escena(canvas, { compacto = false } = {}) {
   const ctx = canvas.getContext('2d');
   let W = 0, H = 0, s = 1, G = 0, ultimo = 0;
   const cam = { x: 0, from: 0, to: 0, t0: 0 };
+  let hora = 0;        // the time of day, 0 (night) to 3 (day), easing toward the score's stage
   const pulsos = [];   // the emerging pulse of a perfect: { x, y, born, color, max }
   const chispas = [];  // sparks: { x, y, vx, vy, born, life, color, size }
   const flotan = [];   // floating points: { x, y, text, born, color }
@@ -63,25 +78,52 @@ export function escena(canvas, { compacto = false } = {}) {
     const a = Math.sin(i * 127.1) * 43758.5453, b = Math.sin(i * 311.7) * 12345.678;
     return { x: (a - Math.floor(a)) * 1400, y: (b - Math.floor(b)), r: 0.5 + ((i * 7) % 5) / 5, f: i * 0.7 };
   });
-  function fondo(now) {
-    // Stars that barely move, and twinkle
-    for (const e of ESTRELLAS) {
+  function fondo(now, dt, score = 0) {
+    // The time of day eases toward the score's stage over about two seconds (at once without motion)
+    const meta = Math.min(CIELOS.length - 1, Math.floor(score / DAY_EVERY));
+    hora = QUIETO || !dt ? meta : hora + Math.sign(meta - hora) * Math.min(Math.abs(meta - hora), dt / 2);
+    const i = Math.min(CIELOS.length - 2, Math.floor(hora)), k = hora - i;
+    const cielo = Object.fromEntries(Object.keys(CIELOS[0]).map(c => [c, mezcla(CIELOS[i][c], CIELOS[i + 1][c], k)]));
+    // The sky: none at night (the app's own night shows through), painted over it as the day comes
+    if (hora > 0) {
+      const gr = ctx.createLinearGradient(0, 0, 0, G);
+      gr.addColorStop(0, rgb(cielo.top, Math.min(1, hora))); gr.addColorStop(1, rgb(cielo.low, Math.min(1, hora)));
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+    }
+    // Stars that barely move, and twinkle; they fade with the dawn
+    const estrellas = clamp01(1 - hora / 1.6);
+    for (const e of estrellas ? ESTRELLAS : []) {
       const x = ((e.x - cam.x * 0.06 * s) % (W + 40) + W + 40) % (W + 40) - 20;
       const y = e.y * G * 0.75;
       // Not through the mountains: a star below the far ridge would shine through its faint rock
       if (y > cresta(x, 0.12, G * 0.66, G * 0.4, 0.8) - 2) continue;
-      ctx.fillStyle = `rgba(255,255,255,${0.25 + 0.35 * (QUIETO ? 0.5 : (Math.sin(now / 700 + e.f) + 1) / 2)})`;
+      ctx.fillStyle = `rgba(255,255,255,${estrellas * (0.25 + 0.35 * (QUIETO ? 0.5 : (Math.sin(now / 700 + e.f) + 1) / 2))})`;
       ctx.fillRect(x, y, e.r * 1.4, e.r * 1.4);
     }
-    // The moon, with its halo
-    const mx = W * 0.78, my = G * 0.2, mr = Math.max(14, 24 * s * (compacto ? 0.8 : 1));
-    const halo = ctx.createRadialGradient(mx, my, mr * 0.6, mx, my, mr * 3.2);
-    halo.addColorStop(0, 'rgba(255,210,63,0.25)'); halo.addColorStop(1, 'rgba(255,210,63,0)');
-    ctx.fillStyle = halo; ctx.fillRect(mx - mr * 3.2, my - mr * 3.2, mr * 6.4, mr * 6.4);
-    luna(mx, my, mr);
+    const mx = W * 0.78, mr = Math.max(14, 24 * s * (compacto ? 0.8 : 1));
+    // The moon, with its halo, setting with the dawn
+    const lunaK = clamp01(hora);
+    if (lunaK < 1) {
+      const my = G * (0.2 + 0.5 * lunaK);
+      ctx.save(); ctx.globalAlpha = 1 - lunaK;
+      const halo = ctx.createRadialGradient(mx, my, mr * 0.6, mx, my, mr * 3.2);
+      halo.addColorStop(0, 'rgba(255,210,63,0.25)'); halo.addColorStop(1, 'rgba(255,210,63,0)');
+      ctx.fillStyle = halo; ctx.fillRect(mx - mr * 3.2, my - mr * 3.2, mr * 6.4, mr * 6.4);
+      luna(mx, my, mr);
+      ctx.restore();
+    }
+    // The sun, rising from behind the mountains at dawn to high in the day
+    if (hora > 0.5) {
+      const sk = clamp01((hora - 0.5) / 2.5), sxx = W * 0.22, sy = G * (0.75 - 0.6 * sk), sr = mr * 1.15;
+      const halo = ctx.createRadialGradient(sxx, sy, sr * 0.8, sxx, sy, sr * 4);
+      halo.addColorStop(0, `rgba(255,220,120,${0.45 * clamp01(hora - 0.5)})`); halo.addColorStop(1, 'rgba(255,220,120,0)');
+      ctx.fillStyle = halo; ctx.fillRect(sxx - sr * 4, sy - sr * 4, sr * 8, sr * 8);
+      ctx.fillStyle = rgb(mezcla([255, 140, 60], [255, 240, 170], sk), clamp01((hora - 0.5) * 2));
+      ctx.beginPath(); ctx.arc(sxx, sy, sr, 0, Math.PI * 2); ctx.fill();
+    }
     // Two ranges of mountains: the far one slow and faint, the near one darker
-    sierra(0.12, G * 0.66, G * 0.4, [34, 10, 62], 0.55, 'rgba(190,160,255,0.22)', 0.8);
-    sierra(0.3, G * 0.9, G * 0.32, [21, 7, 38], 0.8, 'rgba(255,210,63,0.16)', 1.3);
+    sierra(0.12, G * 0.66, G * 0.4, cielo.far, 0.55 + 0.25 * clamp01(hora), rgb(cielo.borde, 0.22), 0.8);
+    sierra(0.3, G * 0.9, G * 0.32, cielo.near, 0.8 + 0.15 * clamp01(hora), rgb(cielo.borde, 0.16), 1.3);
   }
   /**
    * The moon: a crescent whose dark side follows the moon's own outline (as in Tren en Vilo), not a
@@ -296,7 +338,7 @@ export function escena(canvas, { compacto = false } = {}) {
     ultimo = now;
     camara(now);
     ctx.clearRect(0, 0, W, H);
-    fondo(now);
+    fondo(now, dt, g.score);
 
     const w = g.walk, i = g.i;
     // The pillars in sight
@@ -311,7 +353,9 @@ export function escena(canvas, { compacto = false } = {}) {
     else if (w && (g.phase === 'walking' || g.phase === 'lost' || g.phase === 'over')) {
       const k = clamp01((reloj - (w.t0 - TURN_MS)) / TURN_MS);
       let ang = easeIn(k) * Math.PI / 2;
-      if ((muerte || rescate) && !w.ok) ang = Math.PI / 2 + easeIn(clamp01((now - hundido) / 380)) * Math.PI / 2;
+      // A short stick has nothing under its tip: it keeps swinging down into the gap as soon as it is across
+      if (w.kind === 'short') ang += easeIn(clamp01((reloj - w.t0) / 380)) * Math.PI / 2;
+      else if ((muerte || rescate) && !w.ok) ang = Math.PI / 2 + easeIn(clamp01((now - hundido) / 380)) * Math.PI / 2;
       palo(x0, g.stick, ang, w.kind === 'perfect' && k >= 1 ? 1 : 0);
       if (g.phase === 'walking') { ninjaX = runX(w, reloj); corre = reloj >= w.t0; }
     }
@@ -343,13 +387,28 @@ export function escena(canvas, { compacto = false } = {}) {
     const asoma = fase(0, ASOMA_MS), tiro = fase(t1, GANCHO_MS), tensa = fase(t2, TENSA_MS);
     const sube = fase(t3, SUBIDA_MS), salta = fase(t4, SALTO_MS);
     const suave = k => k * k * (3 - 2 * k);
-    const hang = ax + NINJA * 0.5 * u;
+    // The rope hangs out in the gap, clear of the pillar's wall, so it reads as a rope: the hook bites the
+    // edge and the rope bends over the lip out to `aire` before it drops
+    const aire = 14 * s, lipX = ax + aire, lipY = top + 7 * s;
+    const hang = lipX + NINJA * 0.5 * u;
     const y0 = H + h * 0.45, yArriba = top + h * 0.95;   // feet: just the head showing / the head over the edge
-    const cuerda = (puntos, alfa = 0.85) => {
+    /**
+     * A rope along a curve (a quadratic from puntos[0] through puntos[1] to puntos[2]), with soft bends: a
+     * sideways wave of `amp` that is still at both ends and drifts along it at `fase`, so it looks like rope.
+     */
+    const cuerda = (puntos, alfa = 0.85, amp = 0, fase = 0) => {
+      const [[x0, y0], [x1, y1], [x2, y2]] = puntos, N = 28;
       ctx.save();
-      ctx.strokeStyle = `rgba(230,220,255,${alfa})`; ctx.lineWidth = Math.max(1, 1.6 * s); ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(...puntos[0]);
-      if (puntos.length === 3) ctx.quadraticCurveTo(...puntos[1], ...puntos[2]); else ctx.lineTo(...puntos[1]);
+      ctx.strokeStyle = `rgba(230,220,255,${alfa})`; ctx.lineWidth = Math.max(1, 1.6 * s); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath();
+      for (let i = 0; i <= N; i++) {
+        const k = i / N, a = (1 - k) ** 2, b = 2 * (1 - k) * k, c = k * k;
+        const x = a * x0 + b * x1 + c * x2, y = a * y0 + b * y1 + c * y2;
+        const dx = 2 * (1 - k) * (x1 - x0) + 2 * k * (x2 - x1), dy = 2 * (1 - k) * (y1 - y0) + 2 * k * (y2 - y1);
+        const l = Math.hypot(dx, dy) || 1, w = QUIETO ? 0 : amp * Math.sin(Math.PI * k) * (Math.sin(k * 9 + fase) * 0.7 + Math.sin(k * 17 - fase * 1.3) * 0.3);
+        const px = x - dy / l * w, py = y + dx / l * w;
+        if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py);
+      }
       ctx.stroke(); ctx.restore();
     };
     const gancho = (x, y, ang, alfa = 1) => {
@@ -369,7 +428,7 @@ export function escena(canvas, { compacto = false } = {}) {
         const k = tiro, gx = manoX + (ax - manoX) * k;
         const gy = manoY + (top - manoY) * easeOut(k) - Math.sin(k * Math.PI) * 46 * s;
         const slack = (1 - k) * 30 * s + 8 * s;
-        cuerda([[manoX, manoY], [(manoX + gx) / 2 + 10 * s, (manoY + gy) / 2 + slack], [gx, gy]]);
+        cuerda([[manoX, manoY], [(manoX + gx) / 2 + 10 * s, (manoY + gy) / 2 + slack], [gx, gy]], 0.85, (1 - k) * 7 * s + 2.5 * s, now / 90);
         gancho(gx, gy, (1 - k) * 4 * Math.PI);
       }
       ninja(hang, y, now, { manos: [[manoX - hang, manoY - y], [-NINJA * 0.2 * u, -h * 0.5]], paso: 0.4 });
@@ -380,9 +439,10 @@ export function escena(canvas, { compacto = false } = {}) {
     const vibra = tensa < 1 ? Math.sin(tensa * 26) * (1 - tensa) * 5 * s : 0;
     const balanceo = QUIETO ? 0 : Math.sin(now / 420) * (salta > 0 ? 0 : 1);
     const pie = H + 10, ropeAlfa = 0.85 * (1 - salta);
-    const ropeBase = ax + balanceo * 6 * s + vibra;
+    const ropeBase = lipX + balanceo * 6 * s + vibra;
     if (ropeAlfa > 0) {
-      cuerda([[ax, top], [ax + vibra * 2, (top + pie) / 2], [ropeBase, pie]], ropeAlfa);
+      cuerda([[ax, top], [lipX - aire * 0.1, top - 1 * s], [lipX, lipY]], ropeAlfa);
+      cuerda([[lipX, lipY], [lipX + vibra * 2, (lipY + pie) / 2], [ropeBase, pie]], ropeAlfa, (1 - tensa) * 5 * s + 1.6 * s, now / 380);
       gancho(ax, top - 4 * s, Math.PI, 1 - salta);
     }
     if (salta <= 0) {
@@ -392,13 +452,13 @@ export function escena(canvas, { compacto = false } = {}) {
       const heave = suave(clamp01((f - 0.4) / 0.6));
       const jolt = tensa < 1 ? -Math.sin(tensa * Math.PI) * 6 * s : 0;
       const y = sube >= 1 ? yArriba : alto(n) + (alto(n + 1) - alto(n)) * heave + jolt;
-      const ropeX = y2 => ax + (ropeBase - ax) * clamp01((y2 - top) / (pie - top));
+      const ropeX = y2 => lipX + (ropeBase - lipX) * clamp01((y2 - lipY) / (pie - lipY));
       const agarra = n => alto(n + 1) - h * 1.15;               // where the top hand grips for pull n
       const alcanza = suave(clamp01(f / 0.4));
       const arriba = sube >= 1 ? agarra(TIRONES - 1) : agarra(n - 1) + (agarra(n) - agarra(n - 1)) * alcanza;
       const abajo = agarra(n - 1);
       const manoA = [ropeX(arriba) - hang, arriba - y], manoB = [ropeX(abajo) - hang, Math.min(abajo - y, -h * 0.55)];
-      const cuerpoX = hang + (ropeX(y - h * 0.6) - ax);
+      const cuerpoX = hang + (ropeX(y - h * 0.6) - lipX);
       ninja(cuerpoX, y, now, {
         manos: n % 2 ? [manoB, manoA] : [manoA, manoB],
         paso: Math.sin((n + heave) * Math.PI) * 0.8,
@@ -443,10 +503,10 @@ export function escena(canvas, { compacto = false } = {}) {
       cam.from = cam.x; cam.to = current(g).x + current(g).w - HOLD_X; cam.t0 = performance.now();
       if (perfecto) saltoDesde = performance.now();
     },
-    /** The end: the ninja drops into the gap from the stick's tip. */
+    /** The end: the ninja drops into the gap from where it ran to (the stick's tip, or the edge under a short one). */
     caer(g, kind) {
       hundido = performance.now();
-      muerte = { kind, born: hundido, x: g.walk.tip, y: G - 1, vy: -60, vx: 10, rot: 0, vr: 3 };
+      muerte = { kind, born: hundido, x: g.walk.to, y: G - 1, vy: -60, vx: 10, rot: 0, vr: 3 };
     },
     /** A life lost, not the last: the rope from below and the climb back up (RESCATE_MS). */
     rescatar(g) { muerte = null; rescate = QUIETO ? null : { born: performance.now(), x: current(g).x + current(g).w - 2 }; },

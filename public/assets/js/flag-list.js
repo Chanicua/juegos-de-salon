@@ -19,7 +19,6 @@ export const FLAGS = {
   'uad-month-end': '🥇 Uno al día: month-end window with your place, a medal for the podium',
   'stick': '🥷 Shinobi: the game, on the home page, the search and new cups (D-517)',
   'stack': '🗼 Babel: the game, on the home page, the search and new cups (D-517), with its background music',
-  'tester-ribbon': '🧪 Testers: a ribbon on the right edge with the tester sheet, Labs and each screen\'s test control',
   'no-double-tap-zoom': '👆 Games: a double tap no longer zooms the page (iPhone)',
   'lab-ready': '✅ Labs: lab use of each flag is counted, and its card says when it is ready to 🚀 (D-528)',
 };

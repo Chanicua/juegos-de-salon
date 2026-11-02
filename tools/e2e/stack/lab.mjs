@@ -16,7 +16,7 @@ const ok = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!
 const waitFor = async (expr, ms = 8000) => { for (let t = 0; t < ms; t += 100) { if (await ev(expr)) return true; await sleep(100); } return false; };
 
 await b.go(`${SITE}/labs/`);
-ok(await ev(`document.querySelector('#activos #seccion-stack #btn-stack-lab')?.getAttribute('href')`) === 'stack/', 'the lab keeps the English prototype under Juegos en prueba, beside Babel (D-517)');
+ok(await ev(`document.querySelector('#bodega #seccion-stack #btn-stack-lab')?.getAttribute('href')`) === 'stack/', 'the lab keeps the English prototype in its La Bodega card, beside Babel (D-517)');
 ok(await ev(`/Stack/.test(document.querySelector('#seccion-stack a[href*="ketchapp"]')?.textContent || '')`), 'and says it is inspired by Ketchapp\'s Stack, with its link');
 
 await b.go(`${SITE}/labs/stack/?test`, 1200);

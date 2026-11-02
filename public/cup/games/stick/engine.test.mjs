@@ -224,6 +224,22 @@ function toMoving(seed = 1) {
   assert.ok(missed >= 10, `aiming at where it is now is rarely perfect (${missed} of 20 not)`);
 }
 
+// A miss in front of a moving pillar: it never stops, so after the climb back it is where it would be (no jump)
+{
+  const { g, t } = toMoving();
+  const k = g.i + 1;
+  press(g, t);
+  const rel = t + 50, r = release(g, rel);
+  assert.equal(r.kind, 'short');
+  const fall = walkEnd(g) + 1;
+  advance(g, fall);
+  assert.equal(g.phase, 'lost');
+  const back = fall + 2500, free = toMoving().g;
+  near(pillarAt(g, k, fall).x, pillarAt(free, k, fall).x, 'it slides on while the ninja falls');
+  assert.ok(revive(g, back));
+  for (const d of [0, 16, 400, 1300]) near(pillarAt(g, k, back + d).x, pillarAt(free, k, back + d).x, `still on its own slide ${d} ms after the climb`);
+}
+
 // A pause in front of a moving pillar: it comes back where it was
 {
   const { g, t } = toMoving();

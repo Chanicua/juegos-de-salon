@@ -16,7 +16,7 @@ const T = {
 export const RIBBON_TEXTS = T;
 
 const CSS = `
-.tr { position: fixed; right: 0; z-index: 40; display: flex; align-items: flex-start; top: var(--tr-top, calc(70px + var(--safe-top))); font-family: var(--font-body); color: var(--ink); }
+.tr { position: fixed; right: 0; z-index: 40; display: flex; align-items: flex-start; top: max(calc(14px + var(--safe-top)), var(--tr-top, calc(70px + var(--safe-top)))); transition: top 0.35s cubic-bezier(0.22, 1, 0.36, 1); font-family: var(--font-body); color: var(--ink); }
 .tr-tab { position: relative; overflow: hidden; flex: none; width: 38px; height: 46px; border: 0; padding: 0; cursor: pointer;
   border-radius: 14px 0 0 14px; color: var(--bg1); font: 400 1.75rem/1 var(--font-display);
   text-shadow: 0 0 1px #fff, 0 0 6px rgba(255,255,255,0.9), 0 1px 0 rgba(255,255,255,0.8);
@@ -49,6 +49,7 @@ html[data-en-juego] .tr:not(.con-ctx), body.jugando .tr:not(.con-ctx) { display:
 .tr-fila { display: flex; gap: 8px; align-items: center; }
 .tr-fila input { width: 4.2em; padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); color: inherit; font: 800 1rem var(--font-num); text-align: center; }
 .tr-fila .btn { flex: 1; }
+@media (prefers-reduced-motion: reduce) { .tr { transition: none; } }
 `;
 
 let ribbon = null, ctx = null, t = T.es;
@@ -56,9 +57,15 @@ let ribbon = null, ctx = null, t = T.es;
 function place() {
   if (!ribbon) return;
   const bar = document.querySelector('.topbar');
-  const top = bar && bar.getBoundingClientRect().height ? bar.getBoundingClientRect().bottom + 6 : null;
+  // 22 px under the bar's buttons on every screen: closer, the tab reads as glued to them
+  const top = bar && bar.getBoundingClientRect().height ? bar.getBoundingClientRect().bottom + 22 : null;
+  // As the page scrolls the bar leaves and the tab climbs to the screen's top edge (the CSS max()),
+  // gliding there with the transition instead of jumping
   ribbon.style.setProperty('--tr-top', top == null ? 'calc(14px + var(--safe-top))' : `${Math.max(8, top)}px`);
 }
+
+let queued = false;
+const placeSoon = () => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; place(); }); };
 
 function drawContext() {
   if (!ribbon) return;
@@ -87,7 +94,8 @@ export function testerRibbon({ lang = 'es', labsUrl = new URL('../../labs/', imp
   ribbon.addEventListener('keydown', e => { if (e.key === 'Escape') { toggle(false); tab.focus(); } });
   document.body.append(ribbon);
   drawContext(); place();
-  addEventListener('resize', place);
+  addEventListener('resize', placeSoon);
+  addEventListener('scroll', placeSoon, { passive: true });
   document.fonts?.ready.then(place);
   return ribbon;
 }

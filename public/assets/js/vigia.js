@@ -235,8 +235,8 @@
     enviar(cambios);
   };
 
-  // The tester ribbon on every screen (lab flag tester-ribbon): vigía is the one script every page
-  // loads, so it only adds the module next to itself; the module checks the key and the flag
+  // The tester ribbon on every screen (for lab key holders): vigía is the one script every page
+  // loads, so it only adds the module next to itself; the module checks the key
   try {
     var yo = d.currentScript;
     if (yo && yo.src && w.location.pathname.indexOf('/panel/') < 0) {
