@@ -1,3 +1,3 @@
 level: patch
 
-- **Tester tab breathes**: the folded tester ribbon sits further below the top bar on every screen (22 px instead of 6), so it looks placed instead of glued to the buttons.
+- **Tester tab breathes and glides**: the folded tester ribbon sits 22 px below the top bar on every screen, and as the page scrolls it climbs to the top edge with a soft transition instead of staying put or jumping.
