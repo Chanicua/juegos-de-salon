@@ -1838,11 +1838,13 @@ function jugarPractica(id, semilla, variante = null) {
   if (PRUEBA && (id === 'zip' || id === 'desenredo' || id === 'rutas') && seg > 0) p.tiempo = seg * 1000;
   // Señal de uso para el panel (D-44): el suelto se cuenta como su propio juego; el laboratorio no
   // El caso cuenta también desde el laboratorio: es lo que se quiere medir (D-267)
-  if ((!LABS || gameById(id)?.diario) && !PRUEBA) trackStart({ game: id, mode: HOY ? MODO_UNO_AL_DIA : 'solo', players: 1 });
+  // A lab key's simulated game (Babel's «Simular final») is not a game: no signal, no daily attempt
+  const simulado = !!JUEGOS[id].simulando?.();
+  if ((!LABS || gameById(id)?.diario) && !PRUEBA && !simulado) trackStart({ game: id, mode: HOY ? MODO_UNO_AL_DIA : 'solo', players: 1 });
   // Un juego `diario` sigue donde iba al recargar (D-267): las jugadas y el tiempo, por caso
   let guardado = gameById(id)?.diario && !HOY ? partidaGuardada(id, semilla) : null;
   // Today's first attempt (D-433): it counts from here, and it goes on where it was if left
-  if (HOY && !S.hoy.ya && (S.hoy.estadoLlave === 'new' || S.hoy.estadoLlave === 'resume')) {
+  if (HOY && !simulado && !S.hoy.ya && (S.hoy.estadoLlave === 'new' || S.hoy.estadoLlave === 'resume')) {
     empezarHoy(S.hoy);
     if (S.hoy.estadoLlave === 'new') dailySave(S.hoy.fecha, id).borrar();
     guardado = dailySave(S.hoy.fecha, id);

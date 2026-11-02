@@ -45,7 +45,7 @@ const delLab = (id, motor, ui) => ({
   variantes: VARIANTES[id] || null, selector: ui.selector, desglose: ui.desglose, puntajeDia: motor.puntajeDia,
 });
 
-const juego = (motor, ui, ensayo) => ({ generar: motor.generar, montar: ui.montar, resultado: ui.resultado, ejemplo: ui.ejemplo, portada: ui.portada, titulo: ui.titulo, entrada: ui.entrada, pruebaCompleta: !!ui.pruebaCompleta, caro: !!ui.caro, pantallaCompleta: !!ui.pantallaCompleta, clock: !!ui.clock, ensayo });
+const juego = (motor, ui, ensayo) => ({ generar: motor.generar, montar: ui.montar, resultado: ui.resultado, ejemplo: ui.ejemplo, portada: ui.portada, titulo: ui.titulo, entrada: ui.entrada, pruebaCompleta: !!ui.pruebaCompleta, caro: !!ui.caro, pantallaCompleta: !!ui.pantallaCompleta, clock: !!ui.clock, simulando: ui.simulando, ensayo });
 
 /**
  * `generar(código, día, opciones)` y `ensayo(código, día, opciones)` reciben el idioma (D-170):
