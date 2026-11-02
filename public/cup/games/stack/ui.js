@@ -150,9 +150,9 @@ export function titulo({ el, J }) {
     const pisos = el('input', { type: 'number', min: 4, max: 200, value: 51, class: 'sk-sim-n', id: 'sk-sim-n', 'aria-label': 'Pisos' });
     // A folded tab on the screen's left edge, over no control, so the cover looks as players see it (the owner's call)
     document.getElementById('sk-lab')?.remove();
-    // With the tester ribbon (lab flag tester-ribbon), the same control goes in the ribbon instead of the tab
-    flag('tester-ribbon').then(on => {
-      if (!on || !cabeza.isConnected) return;
+    // The same control goes in the tester ribbon (launched, no longer behind a flag), not in a tab
+    Promise.resolve().then(() => {
+      if (!cabeza.isConnected) return;
       return import('../../../assets/js/tester-ribbon.js').then(({ testerRibbon, setTesterContext, foldTesterRibbon }) => {
         document.getElementById('sk-lab')?.remove();
         testerRibbon({ lang: document.documentElement.lang || 'es', labsUrl: new URL('../../../labs/', import.meta.url).href });
