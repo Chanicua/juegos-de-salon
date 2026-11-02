@@ -19,7 +19,7 @@
 > The game starts with the tower already built to that height minus three, the last three blocks drop
 > on their own and the next one misses, so the owner sees the end without playing it. Taps do nothing
 > meanwhile; «Continuar» reloads the cover instead of opening the result, so it is never ranked
-> (it still counts as a game started in the panel's usage).
+> and it sends no usage signal, takes no Uno al día attempt and saves nothing (`simulando()` in `ui.js`).
 
 A one-tap tower game for one player (D-445): a block slides over the tower, a tap drops it, and whatever
 hangs over the edge is cut off. **Inspired by [Stack](https://www.ketchappgames.com/), by Ketchapp

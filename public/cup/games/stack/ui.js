@@ -184,6 +184,8 @@ export function titulo({ el, J }) {
 }
 /** The simulated end's tower height, set by «Simular final» and taken by the next game (0: a real game). */
 let simulacion = 0;
+/** Whether the next game is a simulated one: the cup sends no usage signal for it. */
+export const simulando = () => simulacion > 0;
 
 /* ------------------------------------------------------------------ */
 /* The game                                                           */
@@ -237,8 +239,8 @@ export function montar(raiz, ctx) {
       if (r.grew && !QUIETO()) confetti({ count: 40, duration: 900 });
     } else { SFX.tap(); vibrate(8); }
     if (tope && n >= tope) return acabar('tope');
-    // Saved after each block: a reload ends the game here, it does not start it over
-    ctx.guardar?.(estado());
+    // Saved after each block: a reload ends the game here, it does not start it over (a simulation is never saved)
+    if (!sim) ctx.guardar?.(estado());
   };
 
   // Paused when the page is hidden or loses focus (a call, another app, the screen locked): the slab
@@ -281,7 +283,7 @@ export function montar(raiz, ctx) {
     fuera.abort();
     despertar();
     const e = estado();
-    ctx.guardar?.(e);
+    if (!sim) ctx.guardar?.(e);
     ctx.pararReloj?.(e);
     fadeOutLater();   // the music fades out 7 s after the end
     const listo = motivo === 'tope';
