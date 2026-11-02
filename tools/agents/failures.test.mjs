@@ -34,6 +34,10 @@ assert.deepEqual(parseLog(testsLog), [{ test: 'public/b.test.mjs', error: 'Refer
 const E = s => `g04 · cup\tUNKNOWN STEP\t2026-10-31T20:08:07.5Z ${s}`;
 const e2eLog = [E('▶ cup/tournament.mjs:cup'), E('✓ home'), E('✗ the ones left out stay outside'), E('##[error]exited with 1: ✗ the ones left out stay outside'), E('▶ cup/other.mjs'), E('✓ fine')].join('\n');
 assert.deepEqual(parseLog(e2eLog), [{ test: 'cup/tournament.mjs:cup', error: '✗ the ones left out stay outside' }]);
+// End-to-end's gate job fails whenever a script does: with a script's failure in the log it is not recorded
+const gate = ['end-to-end\tRun echo "list: success · scripts: failure"\t2026-11-02T16:17:53.6Z list: success · scripts: failure',
+  'end-to-end\tRun echo "list: success · scripts: failure"\t2026-11-02T16:17:53.7Z ##[error]Process completed with exit code 1.'].join('\n');
+assert.deepEqual(parseLog(e2eLog + '\n' + gate), [{ test: 'cup/tournament.mjs:cup', error: '✗ the ones left out stay outside' }]);
 
 // Capturing: one record per failing test, a run seen twice is not doubled
 const store = { records: [] };
