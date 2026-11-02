@@ -562,8 +562,8 @@ export const TIPOS_VIEJOS = { palabras: 'words', logica: 'logic', cultura: 'triv
  * when the order changed. The two lines below are written by that tool; a game not in the list
  * goes after the ones that are, in the order of GAMES and SUELTOS.
  */
-export const POPULARIDAD_FECHA = '2026-10-26';
-export const POPULARIDAD = ['copa', 'reinas', 'donde', 'tango', 'anio', 'loteo', 'linea-de-tiempo', 'letras', 'desenredo', 'pintaminas', 'conexiones', 'agentes', 'zip', 'toque-y-fama', 'rutas', 'batalla-naval', 'generala', 'dudo', 'ahorcado'];
+export const POPULARIDAD_FECHA = '2026-11-02';
+export const POPULARIDAD = ['copa', 'reinas', 'tango', 'donde', 'loteo', 'rutas', 'stick', 'anio', 'desenredo', 'linea-de-tiempo', 'pintaminas', 'letras', 'puentes', 'conexiones', 'agentes', 'generala', 'toque-y-fama', 'zip', 'stack', 'batalla-naval', 'ahorcado', 'dudo'];
 const puesto = id => { const i = POPULARIDAD.indexOf(id); return i < 0 ? POPULARIDAD.length : i; };
 
 /**
