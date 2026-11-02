@@ -126,7 +126,9 @@ export function suspend(g, t) {
  * The finger up at `t`: the stick falls. Returns what will happen when it lands:
  * - `perfect`: its tip lands within PERFECT of the next pillar's center (on its flag);
  * - `land`: on the next pillar;
- * - `short` or `long`: in the gap, or past the pillar: the ninja runs to the tip and falls.
+ * - `short`: in the gap: nothing holds its tip, so it swings on down into the gap; the ninja runs to the
+ *   pillar's edge and falls after it;
+ * - `long`: past the pillar: the ninja runs to the tip and falls.
  * The ninja starts running when the stick is down (TURN_MS later).
  */
 export function release(g, t) {
@@ -140,7 +142,7 @@ export function release(g, t) {
   const ok = kind === 'perfect' || kind === 'land';
   g.stick = len; g.phase = 'walking';
   g.walk = {
-    t0: t + TURN_MS, from: restX(cur), to: ok ? restX(nx) : tip, kind, tip, ok, done: false,
+    t0: t + TURN_MS, from: restX(cur), to: ok ? restX(nx) : kind === 'short' ? right(cur) : tip, kind, tip, ok, done: false,
   };
   return { kind, len, tip, offset: tip - center };
 }

@@ -49,12 +49,17 @@ Under them: "📅 Today's course is the same for everyone. Pass the phone and co
   dark silhouettes with a moonlit ridge, each moving slower than the pillars (parallax). The pillars are
   dark columns with a neon top edge (the house's colors, one after another) and faintly lit sides, fading
   into the night at the bottom. The score is big and yellow at the top.
+- **From night to day** (`DAY_EVERY` in `scene.js`): every 15 points the sky eases on a stage over about
+  two seconds: dawn (the moon sets, the stars fade, a sun rises behind the mountains and the ranges warm),
+  the morning, and from 45 points the full day, which stays. A painted sky covers the app's night from
+  dawn on; with reduced motion the change is instant.
 - **Hold anywhere** (or Space or Enter) and the stick grows up from the edge of the pillar, with a soft
   rising note every so often, so the length is heard too. **Let go** and it falls across the gap. The
   first time it says "Hold to stretch the stick".
-- **Its tip on the next pillar:** the ninja runs over, headband tails flying, and scores **1**. In the gap
-  (too short) or past the pillar (too long), the ninja runs to the tip, the stick drops and the ninja falls:
-  "Too short!" or "Too long!".
+- **Its tip on the next pillar:** the ninja runs over, headband tails flying, and scores **1**. Too short,
+  the stick has nothing under its tip and swings on down into the gap; the ninja runs to its pillar's edge
+  and falls after it: "Too short!". Past the pillar (too long), the ninja runs to the tip, the stick drops
+  and the ninja falls: "Too long!".
 - **Three lives** (the owner's request, 2026-10-26: one fall could end a run in ten seconds, so a run had
   no length): three ❤️ at the top left of the night. A fall costs one, which goes dark: "Too short!" or
   "Too long!" with "❤️ 2 lives left" or "Last life!" under it, and after a moment the ninja is back on the
