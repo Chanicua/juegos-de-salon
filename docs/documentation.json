@@ -1,5 +1,5 @@
 {
-  "checkedUpTo": "d2bb10d269a969ac7e7e4dc42d00e814190c308b",
+  "checkedUpTo": "72dec3ab7932ab55de5f9da4d0f93f1d3ebaf329",
   "pending": [
     "README screenshots stale in 12 sections (portada, cuarto-rey, toque-y-fama, batalla-naval, linea-de-tiempo, dudo, generala, idiomas, ahorcado, julepe, copa, cup-new-games), mostly after the Bangers font preload (#1010): redo and review on contact sheets"
   ],
@@ -169,6 +169,15 @@
       "date": "2026-11-01",
       "from": "0f0a6181fa66beeb40a65e3de09b2b841f69b03a",
       "to": "d2bb10d269a969ac7e7e4dc42d00e814190c308b",
+      "pr": null,
+      "pending": [
+        "README screenshots stale in 12 sections (portada, cuarto-rey, toque-y-fama, batalla-naval, linea-de-tiempo, dudo, generala, idiomas, ahorcado, julepe, copa, cup-new-games), mostly after the Bangers font preload (#1010): redo and review on contact sheets"
+      ]
+    },
+    {
+      "date": "2026-11-02",
+      "from": "d2bb10d269a969ac7e7e4dc42d00e814190c308b",
+      "to": "72dec3ab7932ab55de5f9da4d0f93f1d3ebaf329",
       "pr": null,
       "pending": [
         "README screenshots stale in 12 sections (portada, cuarto-rey, toque-y-fama, batalla-naval, linea-de-tiempo, dudo, generala, idiomas, ahorcado, julepe, copa, cup-new-games), mostly after the Bangers font preload (#1010): redo and review on contact sheets"
