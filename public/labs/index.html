@@ -133,11 +133,6 @@
         <h2>✨ Mejoras en prueba</h2>
         <p class="muted">Cambios al resto de la app, para mirarlos antes de que lleguen a todos.</p>
         <p class="muted mejoras-vacio">Ahora no hay ninguna en prueba: las lanzadas están en La Bodega.</p>
-        <section class="panel seccion" id="seccion-tester-ribbon">
-          <h2>🧪 Ribbon de tester</h2>
-          <p class="muted" style="margin:0">Reemplaza la etiqueta «tester» de la portada y la pestaña 🧪 de Babel. Una pestaña con una T brillante en el borde derecho, bajo la barra de arriba, que no mueve nada de la página. Al tocarla se abre con la (i) que explica qué es ser tester, un link a Labs y el control que la pantalla tenga para probar (en /babel/, «Simular final»). Se pliega al tocar fuera. Solo la ven quienes tienen llave.</p>
-          <a class="btn btn--yellow" id="btn-tester-ribbon" href="../babel/">🗼 Verlo en Babel</a>
-        </section>
         <section class="panel seccion" id="seccion-lab-ready">
           <h2>✅ Listo para publicar</h2>
           <p class="muted" style="margin:0">Cuenta cuánto usan los testers cada mejora en prueba: cuántas veces la abren, cuántas la usan hasta el final, cuántas fallan y con cuántas llaves distintas. Solo números, nada de quién. Cuando una pasa la vara (5 usos completos, 2 llaves, 3 días, sin errores), su tarjeta lo dice con las cifras, para que la publiques. Lo ves en las tarjetas de esta misma página, con tu sesión de dueño.</p>
@@ -222,6 +217,15 @@
           <!-- Each card carries the day it launched; bodega.js folds them by week this month and by month before (#956) -->
           <input type="search" class="bodega-buscar" id="bodega-buscar" placeholder="🔎 Buscar una mejora" aria-label="Buscar una mejora">
           <p class="muted bodega-nada" id="bodega-nada" hidden>Ninguna mejora lanzada tiene esa palabra.</p>
+          <section class="panel seccion plegada" id="seccion-tester-ribbon" data-launched="2026-11-02">
+            <details>
+              <summary><h2>🧪 Ribbon de tester</h2><span class="flecha" aria-hidden="true">›</span></summary>
+              <div class="detalle">
+                <p class="muted" style="margin:0">🚀 Lanzado. Reemplazó la etiqueta «tester» de la portada y la pestaña 🧪 de Babel. Una pestaña con una T brillante en el borde derecho, bajo la barra de arriba, que no mueve nada de la página. Al tocarla se abre con la (i) que explica qué es ser tester, un link a Labs y el control que la pantalla tenga para probar (en /babel/, «Simular final»). Se pliega al tocar fuera. Solo la ven quienes tienen llave.</p>
+                <a class="btn btn--yellow" id="btn-tester-ribbon" href="../babel/">🗼 Verlo en Babel</a>
+              </div>
+            </details>
+          </section>
           <section class="panel seccion plegada" id="seccion-copa-contexto" data-launched="2026-11-01">
             <details>
               <summary><h2>🏆 La Copa: tu copa, tu lugar y el juego del día en la portada</h2><span class="flecha" aria-hidden="true">›</span></summary>
