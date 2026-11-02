@@ -152,9 +152,9 @@ A bridge builder inspired by [Poly Bridge](https://en.wikipedia.org/wiki/Poly_Br
 
 Spec and design: [docs/games/bridges.md](docs/games/bridges.md)
 
-### 🥷 Shinobi and 🗼 Babel (ready, waiting for their flag)
+### 🥷 Shinobi and 🗼 Babel (launched 2026-11-02)
 
-Two one-player reflex games built as La Copa games (D-517), with their pages `/shinobi/` and `/babel/`: **Shinobi**, inspired by Ketchapp's Stick Hero (hold to stretch a stick across the gap), and **Babel**, inspired by Ketchapp's Stack (tap to drop each block on the tower); each cover credits the original with a link. They are hidden (`lanza` in the manifest) from the home page, the search, the filters, /records/ and a new cup's pool until the owner switches the flags `stick` and `stack` on their /labs/ cards; Uno al día may deal them from the deck shuffled on 2026-11-08. Scores are 0–100.
+Two one-player reflex games built as La Copa games (D-517), with their pages `/shinobi/` and `/babel/`: **Shinobi**, inspired by Ketchapp's Stick Hero (hold to stretch a stick across the gap), and **Babel**, inspired by Ketchapp's Stack (tap to drop each block on the tower); each cover credits the original with a link. They came out at 00:00 Pacific on 2026-11-02, when the launch workflow switched their flags `stick` and `stack` to everyone (D-529); until a cleanup PR drops the gate (`lanza` in the manifest), switching a flag off hides its game again from the home page, the search, the filters, /records/ and a new cup's pool. Both carry the «Nuevo» label for 10 days. Uno al día may deal them from the deck shuffled on 2026-11-08. Scores have no cap (D-525): the Grand Final caps them at 100 and Uno al día maps them on a soft curve (D-526).
 
 Spec and design: [docs/games/stick.md](docs/games/stick.md), [docs/games/stack.md](docs/games/stack.md)
 
