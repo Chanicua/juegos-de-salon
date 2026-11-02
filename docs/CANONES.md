@@ -487,7 +487,7 @@ de dónde viene. Lo que cambie la portada se cambia aquí, en el mismo PR.
   them, and shrinks as the player scrolls up, so they leave at the first pixel up; the jump is
   rounded up to a whole pixel (D-371).
 - **Los tipos van en una sola fila**, a cualquier ancho desde 320 px y en los tres idiomas:
-  bajo 520 px el emoji sube arriba del nombre, y bajo 300 px de caja las fichas se aprietan para
+  con la fila bajo 560 px el emoji sube arriba del nombre (cinco tipos no cabían a 900 px en es y pt), y bajo 300 px de caja las fichas se aprietan para
   no quedar pegadas al borde (D-144, D-149, U-11). Lo que se suma a la fila entra solo si cabe,
   y eso se mide en la página, no se supone: ⭐ Favoritos va primera, con su nombre o con la ⭐
   sola y menos aire entre las fichas, y si ni así cabe (a 320 px, casi siempre) va en su propia
