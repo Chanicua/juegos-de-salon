@@ -73,7 +73,8 @@ try {
     if (k === 0) {
       const s = await text('.tv-felicitacion');
       ok(/Madera|Acero/.test(s) && /Esfuerzo/.test(s) && /Tiempo/.test(s) && /Puntos/.test(s), 'the summary has the wood, the strain, the time and the points');
-      const c0 = await text('#tv-reloj'); await sleep(2200);
+      // past one 250 ms tick first: the last tick before the pause may still show the second before
+      await sleep(400); const c0 = await text('#tv-reloj'); await sleep(2200);
       ok(await text('#tv-reloj') === c0, `the clock stands still while it is open (${c0})`);
       await b.shot('03-summary');
     }
