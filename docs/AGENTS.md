@@ -34,7 +34,7 @@ or any other here), launch it and report what it found; do not ask the owner fir
   which the Mac mini's `feedback-watch` job uploads every 5 minutes (D-382) as `feedback` issues (`tools/agents/feedback.mjs`,
   with the name the player entered and without their browser, D-279; each pass also writes the issue and PRs of every report to `feedbackEstado/`, shown in the panel's 💬 Feedback section); a player who left an email gets a
   templated reply in their language when the report is resolved (`feedback.mjs reply <n>[,<n>…] <answer.txt> --lang <xx>`, one email per player for all their comments, grouped by `feedback.mjs pending`,
-  through `send-mail.py`, always from hola@juegosdesalon.cl and checked in Gmail's Sent folder, or nothing is sent (D-443), then comments the quoted answer on each issue, labels it `replied` and closes it; a reply for a built suggestion goes out only once the change is live, in three parts: thanks, what changed, what stayed; `forget` only deletes the address of destructive feedback, and `expire`, which every `sync` pass runs, deletes one left unanswered for 90 days (D-463); D-317, D-368). It works the owner's
+  through `send-mail.py`, always from hola@juegosdesalon.cl and checked in Gmail's Sent folder, or nothing is sent (D-443), then comments the quoted answer on each issue, labels it `replied` and closes it; a reply for a built suggestion goes out only once the change is live, in three parts: thanks, what changed, what stayed; `forget` only deletes the address of destructive feedback, and `expire`, which every `sync` pass runs, deletes one left unanswered for 90 days (D-463); D-317, D-368); a bug report (`feedback:problem`) starts with a failing test named after the issue, committed before the fix and recorded with `feedback.mjs repro <n> <test>`, and `reply` refuses it without one or `--no-repro "<why>"`, D-527). It works the owner's
   backlog, the open issues with no label that `processes.mjs check` lists (D-339). It closes what was left open and
   turns a recurring error into a mechanism (a test before an instruction). In its
   round it collects the `changelog/` entries into `CHANGELOG.md` (D-300) and deletes the decision
@@ -85,6 +85,12 @@ or any other here), launch it and report what it found; do not ask the owner fir
   Mac mini's `lab-publish-watch` job hands to a headless session that opens the PR (D-480,
   `node tools/agents/lab-publish.mjs list`); if that PR stays in conflict with `main` or with red checks, the watcher sends
   one more session to bring it up to date, rerun or fix it (at most twice), or fails the request after an hour (D-486).
+  **Lab readiness is measured** (D-528): a flag on for a lab key holder counts its loads, finished loads, loads with
+  a failure and distinct keys (aggregate, `labsUso/`, `public/assets/js/lab-usage.js`; a page may call `flagDone(id)`
+  when its flagged path is used to the end). The Mac mini's hourly `lab-ready` job (`node tools/agents/lab-ready.mjs check | list | news`)
+  weighs them against `READY` / `READY_BY` in `flag-list.js` (default ≥5 finished by ≥2 keys over ≥3 days, 0 errors,
+  since the flag was last switched) and writes `flagsListas/`; the card then says **✅ Listo para 🚀** with the numbers.
+  The processes round tells the owner once (`news`); the owner still presses 🚀.
 - **Home page order and lab experiments** (D-361): `node tools/agents/popularity.mjs check | update`
   recounts the home page's order (`POPULARIDAD` in `games.js`) by games finished in the last four
   weeks; the processes round runs `update` once the list is a week old. What is tried on the home

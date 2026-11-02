@@ -310,6 +310,13 @@ switched on its /labs/ card (🧪 lab, 🚀 everyone, ⚪ off). Public read (the
 no one); only the owner's UID writes it; ids match `[a-z0-9-]{1,40}` and any other field is rejected.
 Empty, a flag is `lab`. Checked by `firebase/flags.test.mjs`.
 
+## Lab use and readiness (`labsUso`, `flagsListas`, D-528)
+
+`labsUso/<flag>/<day>` = `{ n, c, e, k: { <8 hex>: true } }`: loads with the flag on through a lab key,
+finished loads, loads with a failure, and the first 8 hex of each key's SHA-256. Anyone adds one at a
+time (`public/assets/js/lab-usage.js`); only the owner reads. `flagsListas/<flag>` is the verdict
+`tools/agents/lab-ready.mjs check` writes for the /labs/ card; owner only. Checked by `firebase/lab-ready.test.mjs`.
+
 ## Publishing a lab feature (`labsPublish`, D-480)
 
 `labsPublish/<card id>` = `{ state: 'requested'|'working'|'pr'|'merged'|'failed', at, title?, note?,

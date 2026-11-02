@@ -181,3 +181,21 @@ assert.doesNotMatch(title({ texto: 'soy ana@mail.cl' }), /ana@/);
   assert.equal(st.bb.replied, true);
   assert.deepEqual(st.bb.prs, []);
 }
+
+// A bug report starts with a failing test (D-527): reply refuses a feedback:problem without its repro
+{
+  const { needsRepro, reproOf, reproComment, noReproComment, namesIssue, PROBLEM } = await import('./feedback.mjs');
+  const bug = { number: 42, labels: [{ name: 'feedback' }, { name: PROBLEM }], comments: [] };
+  assert.match(needsRepro(bug), /#42.*failing test.*repro 42/);
+  assert.equal(needsRepro({ ...bug, labels: [{ name: 'feedback' }, { name: 'feedback:suggestion' }] }), null);
+  assert.equal(needsRepro(bug, 'only on one Android phone'), null);
+  assert.equal(needsRepro(bug, '   '), needsRepro(bug));
+  const withTest = { ...bug, comments: [{ body: 'hi' }, { body: reproComment('tools/e2e/hangman/issue-42.mjs') }] };
+  assert.equal(needsRepro(withTest), null);
+  assert.deepEqual(reproOf(withTest.comments), { path: 'tools/e2e/hangman/issue-42.mjs' });
+  assert.deepEqual(reproOf([{ body: noReproComment('device-specific') }]), { why: 'device-specific' });
+  assert.equal(reproOf([{ body: 'nothing' }]), null);
+  assert.ok(namesIssue('// #42 the timer froze', 42));
+  assert.ok(!namesIssue('// #420 another', 42));
+  assert.ok(!namesIssue('', 42));
+}

@@ -1494,6 +1494,40 @@
         }
       }
     },
+    "labsUso": {
+      ".read": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
+      "$id": {
+        ".validate": "$id.matches(/^[a-z0-9-]{1,40}$/)",
+        "$day": {
+          ".validate": "$day.matches(/^[0-9]{5,6}$/)",
+          "n": {
+            ".write": "$id.matches(/^[a-z0-9-]{1,40}$/) && $day.matches(/^[0-9]{5,6}$/)",
+            ".validate": "newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"
+          },
+          "c": {
+            ".write": "$id.matches(/^[a-z0-9-]{1,40}$/) && $day.matches(/^[0-9]{5,6}$/)",
+            ".validate": "newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"
+          },
+          "e": {
+            ".write": "$id.matches(/^[a-z0-9-]{1,40}$/) && $day.matches(/^[0-9]{5,6}$/)",
+            ".validate": "newData.isNumber() && newData.val() === (data.exists() ? data.val() : 0) + 1"
+          },
+          "k": {
+            "$hash": {
+              ".write": "$id.matches(/^[a-z0-9-]{1,40}$/) && $day.matches(/^[0-9]{5,6}$/)",
+              ".validate": "$hash.matches(/^[0-9a-f]{8}$/) && newData.val() === true"
+            }
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "flagsListas": {
+      ".read": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
+      ".write": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'"
+    },
     "labsPublish": {
       ".read": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
       ".write": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",

@@ -51,5 +51,9 @@ export function loadFlags({ fetchFn = globalThis.fetch, store = globalThis.local
 /** For the page: true when this visitor gets the feature behind flag `id`. The lab key is asked only for 'lab'. */
 export async function flag(id, { load = loadFlags, lab = labAccess } = {}) {
   const state = stateOf(await load(), id);
-  return state === 'lab' ? flagOn(state, await lab()) : flagOn(state, false);
+  if (state !== 'lab') return flagOn(state, false);
+  const on = flagOn(state, await lab());
+  // what the lab uses is counted, to tell the owner when it is ready (D-528); not for the tests' own loaders
+  if (on && id !== 'lab-ready' && load === loadFlags) import('./lab-usage.js').then(m => m.exposed(id)).catch(() => {});
+  return on;
 }

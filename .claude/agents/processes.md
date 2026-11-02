@@ -92,6 +92,10 @@ that (after a new game, after a big text change), saying why.
   para todos requests. The `lab-publish-watch` job on the Mac mini takes them within 5 minutes; one
   still `requested` after hours means the job failed or is not installed (look at its log), and a
   `failed` one goes in your report to the owner with its reason, so they can ask again from the card.
+- **Lab flags ready to publish (D-528):** `node tools/agents/lab-ready.mjs news` prints each flag that the
+  hourly `lab-ready` job found ready (enough real lab use, no errors) and was not yet told, then marks it
+  told: put those lines in your report once, never again for the same readiness. The owner publishes
+  from the card's 🚀; you never flip a flag.
 - **`documentation`, round mode:** "Do your daily round according to your guide, from
   `origin/main` and in your own worktree (`git worktree add`); PR base `main`." Criteria: its PR
   open (or "nothing to document" if nothing entered), `document.mjs check` with no new ✗ and
@@ -171,6 +175,14 @@ that (after a new game, after a big text change), saying why.
    - **Resolved, duplicate or already an open dilemma:** you close it naming where it was resolved
      or the issue that covers it.
    - **Can't be understood or isn't about the app:** you close it saying why.
+   **A bug report starts with a failing test** (D-527): for a `feedback:problem` report you can
+   reproduce, before touching code write the smallest test that shows it (an e2e in
+   `tools/e2e/<game>/` or a `*.test.mjs` next to the game), named after the issue (`issue-<n>` in the
+   file name, `#<n>` inside it), and commit it first so CI shows it red; then the fix, which touches
+   only that game, turns it green. Record it with `node tools/agents/feedback.mjs repro <n> <test>`.
+   `reply` refuses a bug report without it; if it can't be reproduced (device-specific, not enough
+   detail), reply with `--no-repro "<why>"` and the issue keeps the reason. Example: #1103,
+   `public/cup/games/stick/issue-1103.test.mjs`.
    **The email reply (D-317, owner's request).** A report whose issue shows `**Email:**` (a mask
    like `j********n@g********m`, D-366) wants to hear back. When you resolve it (fixed in your PR, queued
    by the owner's Yes, already done, or answered), you email the player. **One email per player

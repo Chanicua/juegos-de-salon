@@ -50,18 +50,25 @@ export function statusOf(id, e) {
   }
 }
 
-let db, requests = {}, flags = {};
+let db, requests = {}, flags = {}, listas = {};
 
 /** The flag a card is behind, or null: its id without `seccion-`, if FLAGS has it. */
 export const flagOf = id => { const f = id.replace(/^seccion-/, ''); return FLAGS[f] ? f : null; };
 const setFlag = (f, state) => set(ref(db, `flags/${f}`), { state, at: Date.now() });
 
 /** What a flagged card shows (D-498): its state and the buttons to the other two; /labs/ is the one place to switch them. */
-export function flagStatusOf(state, at) {
+export function flagStatusOf(state, at, lista = null) {
   const since = at ? ` desde el ${when(at)}` : '';
   if (state === 'all') return { tone: 'ok', lines: [`🟢 Publicado para todos${since}: cada jugador lo ve la próxima vez que abre esa página. Sin PR.`, 'Su tarjeta ya está en La Bodega; más adelante, un PR de limpieza quita la puerta del código.'], to: [['lab', '↩️ Volver al laboratorio'], ['off', '⚪ Apagar para todos']] };
   if (state === 'off') return { tone: 'bad', lines: [`⚪ Apagado para todos${since}, también en el laboratorio.`], to: [['lab', '🧪 Encender en el laboratorio']] };
-  return { tone: 'wait', lines: ['🧪 En el laboratorio: solo lo ven quienes tienen la llave.'], to: [['all', '🚀 Publicar para todos'], ['off', '⚪ Apagar para todos']] };
+  return { tone: 'wait', lines: ['🧪 En el laboratorio: solo lo ven quienes tienen la llave.', ...readyLines(lista)], ready: !!lista?.ready, to: [['all', '🚀 Publicar para todos'], ['off', '⚪ Apagar para todos']] };
+}
+
+/** What lab-ready.mjs measured for a flag in lab (D-528): ✅ Listo para 🚀 with its evidence, or what is missing. */
+export function readyLines(l) {
+  if (!l) return [];
+  const nums = `${l.completions} usos completos de ${l.exposures} aperturas, ${l.keys} llave(s), ${l.days} día(s), ${l.errors} con error`;
+  return l.ready ? [`✅ Listo para 🚀: ${nums}.`] : [`📊 Uso en el laboratorio: ${nums}. Falta: ${(l.missing || []).join(', ')}.`];
 }
 
 /** The confirmation for a flagged card: immediate, no note, no PR. */
@@ -142,8 +149,8 @@ export function ask(card, existing) {
 }
 
 /** Draws the cards for these requests: the page's own listener, and tools/e2e/labs/publish.mjs. */
-export function render(r = requests, fl = flags) {
-  requests = r; flags = fl;
+export function render(r = requests, fl = flags, li = listas) {
+  requests = r; flags = fl; listas = li;
   for (const card of cards()) {
     $('.publicar', card)?.remove();
     const f = flagOf(card.id);
@@ -152,8 +159,8 @@ export function render(r = requests, fl = flags) {
     // a flagged card shows its switch, unless a 📦 request is on its way (until the card is in La Bodega)
     const sending = requests[card.id]?.kind === 'bodega' && !(inBodega && requests[card.id].state === 'merged');
     if (f && !sending) {
-      const fs = flagStatusOf(stateOf(flags, f), flags?.[f]?.at);
-      const box = el('div', { class: 'publicar' }, el('div', { class: `publicar-estado publicar-estado--${fs.tone}`, role: 'status' },
+      const fs = flagStatusOf(stateOf(flags, f), flags?.[f]?.at, listas?.[f]);
+      const box = el('div', { class: 'publicar' }, el('div', { class: `publicar-estado publicar-estado--${fs.ready ? 'ok' : fs.tone}`, role: 'status' },
         ...fs.lines.map(l => el('p', {}, l)),
         el('div', { class: 'btn-row' }, ...fs.to.map(([to, label]) => el('button', { class: 'btn btn--ghost', onClick: () => (to === 'all' ? askFlag(card, f) : setFlag(f, to).catch(() => {})) }, label)),
           inBodega ? null : toBodega())));
@@ -183,14 +190,15 @@ export function start() {
   let stop = null;
   const owner = $('#publicar-dueno');
   onAuthStateChanged(auth, user => {
-    stop?.(); stop = null; requests = {}; flags = {}; $$('.publicar').forEach(n => n.remove());
+    stop?.(); stop = null; requests = {}; flags = {}; listas = {}; $$('.publicar').forEach(n => n.remove());
     if (owner) owner.hidden = !!user;
     if (!user) return;
     // a read the rules refuse means this is not the owner: nothing is shown
     let owns = false;
     const offFlags = onValue(ref(db, 'flags'), snap => { flags = snap.val() || {}; if (owns) render(); }, () => {});
     const offReq = onValue(ref(db, 'labsPublish'), snap => { owns = true; requests = snap.val() || {}; render(); }, () => {});
-    stop = () => { offFlags(); offReq(); };
+    const offListas = onValue(ref(db, 'flagsListas'), snap => { listas = snap.val() || {}; if (owns) render(); }, () => {});
+    stop = () => { offFlags(); offReq(); offListas(); };
   });
   owner?.querySelector('button')?.addEventListener('click', () => {
     const provider = new GoogleAuthProvider();

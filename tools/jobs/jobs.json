@@ -19,6 +19,14 @@
       "decisions": ["D-479", "D-480"]
     },
     {
+      "id": "lab-ready",
+      "where": "mac",
+      "every": 3600,
+      "command": ["node", "tools/agents/lab-ready.mjs", "check"],
+      "what": "Every hour, without Claude: weighs each lab flag's real use by lab key holders (labsUso/) against its threshold and writes flagsListas/, so its /labs/ card says ✅ Listo para 🚀 with the evidence.",
+      "decisions": ["D-528"]
+    },
+    {
       "id": "feedback-watch",
       "where": "mac",
       "every": 300,

@@ -21,4 +21,14 @@ export const FLAGS = {
   'stack': '🗼 Babel: the game, on the home page, the search and new cups (D-517), with its background music',
   'tester-ribbon': '🧪 Testers: a ribbon on the right edge with the tester sheet, Labs and each screen\'s test control',
   'no-double-tap-zoom': '👆 Games: a double tap no longer zooms the page (iPhone)',
+  'lab-ready': '✅ Labs: lab use of each flag is counted, and its card says when it is ready to 🚀 (D-528)',
 };
+
+/**
+ * When a flag in *lab* is ready to publish (D-528): at least `completions` finished loads by at least
+ * `keys` different lab keys over at least `days` days, with at most `errors` loads that failed, all
+ * since the flag was last switched. `tools/agents/lab-ready.mjs` applies it; a row of READY_BY
+ * overrides it for one flag (a screen few reach asks for less, a big change for more).
+ */
+export const READY = { completions: 5, keys: 2, days: 3, errors: 0 };
+export const READY_BY = {};

@@ -11,6 +11,11 @@
  *                                                                         # one email for all of a player's comments
  *   node tools/agents/feedback.mjs forget <issue> "<reason>"                 # deletes the address, no email
  *   node tools/agents/feedback.mjs expire [--dry-run]                       # deletes the addresses older than 90 days (D-463)
+ *   node tools/agents/feedback.mjs repro <issue> <test path>                # the test that reproduces a bug report (D-527)
+ *
+ * A bug report starts with a failing test (D-527): a `feedback:problem` issue gets its `reply` only
+ * once `repro` recorded the test that reproduces it (named after the issue, `#<n>` inside it), or
+ * with `reply … --no-repro "<why>"` (not reproducible, device-specific…), which the issue records.
  *
  * Optional email (D-317): a player who wants to hear back leaves an address. The issue only shows
  * its mask (`j********n@g********m`, D-366); the address lives in `feedbackContacto/<id>`, readable only
@@ -76,6 +81,31 @@ export const expired = (contacts, now = Date.now(), days = RETENTION_DAYS) => Ob
 /** The comment on the issue whose address expired: the processes agent no longer has anyone to email. */
 export const expiredComment = (days = RETENTION_DAYS) =>
   `No reply within ${days} days: the player's email address was deleted (D-463). Answer here if needed; no email can be sent any more.\n${FORGOTTEN}`;
+
+/* A bug report starts with a failing test (D-527) */
+export const PROBLEM = KIND_LABELS.problema;
+export const REPRO = '<!-- feedback-repro -->', NO_REPRO = '<!-- feedback-no-repro -->';
+/** The comment that links an issue to the test reproducing it. */
+export const reproComment = path => `🧪 Reproduced by \`${path}\`: it failed before the fix and passes with it (D-527).\n${REPRO}`;
+/** The comment that says why a bug report has no reproducing test. */
+export const noReproComment = why => `🧪 No reproducing test: ${String(why).trim()} (D-527).\n${NO_REPRO}`;
+/** The test file must name the issue (`#<n>`), so it stays tied to it and `affected.mjs` keeps it with its game. */
+export const namesIssue = (source, n) => new RegExp(`#${n}(?!\\d)`).test(String(source || ''));
+/** The repro record on an issue: `{ path }`, `{ why }` or null (the latest one wins). */
+export function reproOf(comments) {
+  for (const c of [...(comments || [])].reverse()) {
+    const b = c?.body || '';
+    if (b.includes(REPRO)) return { path: /`([^`]+)`/.exec(b)?.[1] || '' };
+    if (b.includes(NO_REPRO)) return { why: /No reproducing test: ([\s\S]*?) \(D-527\)/.exec(b)?.[1] || '' };
+  }
+  return null;
+}
+/** Why `reply` must refuse this issue, or null: a bug report needs its repro or a `--no-repro` reason. */
+export function needsRepro(issue, noRepro = '') {
+  if (!(issue?.labels || []).some(l => l.name === PROBLEM)) return null;
+  if (reproOf(issue.comments) || String(noRepro || '').trim()) return null;
+  return `#${issue.number}: a bug report starts with a failing test (D-527). Record it with \`feedback.mjs repro ${issue.number} <test>\`, or reply with --no-repro "<why>".`;
+}
 
 /** Already emailed or forgotten? */
 export const handled = comments => (comments || []).some(c => (c.body || '').includes(EMAILED) || (c.body || '').includes(FORGOTTEN));
@@ -301,7 +331,7 @@ async function contactOf(number, t, test = false) {
   const c = t ? await (await import('../firebase/firebase-admin.mjs')).read(`feedbackContacto/${id}`, t) : null;
   // The issue shows the name masked (D-366): the greeting takes it from the report itself
   const report = t ? await (await import('../firebase/firebase-admin.mjs')).read(`feedback/${id}`, t) : null;
-  return { number: String(number), id, email: c?.correo || null, name: greetingName(report, issue.body), text: textOf(issue.body), thread: c?.idMensaje ? { id: c.idMensaje, subject: c.asunto || '' } : null, state: issue.state, mask: /\*\*Email:\*\* `([^`]+)`/.exec(issue.body)?.[1] || '' };
+  return { issue: { number, labels: issue.labels, comments: issue.comments }, number: String(number), id, email: c?.correo || null, name: greetingName(report, issue.body), text: textOf(issue.body), thread: c?.idMensaje ? { id: c.idMensaje, subject: c.asunto || '' } : null, state: issue.state, mask: /\*\*Email:\*\* `([^`]+)`/.exec(issue.body)?.[1] || '' };
 }
 
 const adminToken = async () => (await import('../firebase/firebase-admin.mjs')).token();
@@ -317,7 +347,7 @@ async function remove(id, t) {
  * `testTo`: send it to that address instead, without reading or deleting any address or touching
  * the issues (to see how a real reply looks).
  */
-async function reply(list, file, lang, { dryRun, testTo }) {
+async function reply(list, file, lang, { dryRun, testTo, noRepro }) {
   const { readFileSync } = await import('node:fs');
   const { buildEmail } = await import('./feedback-templates.mjs');
   const numbers = String(list).split(',').map(x => x.trim().replace(/^#/, '')).filter(Boolean);
@@ -328,6 +358,8 @@ async function reply(list, file, lang, { dryRun, testTo }) {
   const all = [];
   for (const n of numbers) all.push(await contactOf(n, t, !!testTo));
   if (!testTo) {
+    const blocked = all.map(x => needsRepro(x.issue, noRepro)).filter(Boolean);
+    if (blocked.length) throw new Error(blocked.join('\n'));
     const without = all.filter(x => !x.email);
     if (without.length) throw new Error(`No address in feedbackContacto/ for ${without.map(x => `#${x.number}`).join(', ')} (already deleted?).`);
     if (new Set(all.map(x => x.email.toLowerCase())).size > 1) throw new Error(`Not the same player: ${all.map(x => `#${x.number} ${x.mask}`).join(', ')}. One email per address.`);
@@ -347,6 +379,7 @@ async function reply(list, file, lang, { dryRun, testTo }) {
   if (testTo) { console.log(`Test email with ${numbers.map(n => `#${n}`).join(', ')} sent to the test address; nothing else touched.`); return; }
   try { gh('label', 'create', REPLIED, '--color', '0e8a16', '--description', 'Feedback answered by email and resolved (D-368)'); } catch { /* already there */ }
   for (const x of all) {
+    if (noRepro && x.issue.labels.some(l => l.name === PROBLEM) && !reproOf(x.issue.comments)) gh('issue', 'comment', x.number, '--body', noReproComment(noRepro));
     await remove(x.id, t);
     const together = all.length > 1 ? ` in one email together with ${all.filter(y => y !== x).map(y => `#${y.number}`).join(', ')}` : '';
     // The record of what was answered, then replied and resolved (D-368): the issue says what the player was told
@@ -355,6 +388,19 @@ async function reply(list, file, lang, { dryRun, testTo }) {
     gh('issue', 'close', x.number, '--reason', 'completed');
   }
   console.log(`${numbers.map(n => `#${n}`).join(', ')}: one email to ${all[0].mask}, addresses deleted.`);
+}
+
+/** Records the test that reproduces a bug report (D-527): it must exist and name the issue. */
+async function repro(number, path) {
+  const { readFileSync, existsSync } = await import('node:fs');
+  const n = String(number).replace(/^#/, '');
+  if (!/^\d+$/.test(n)) throw new Error(`An issue number, not "${number}".`);
+  if (!existsSync(path)) throw new Error(`No test at ${path}.`);
+  if (!namesIssue(readFileSync(path, 'utf8'), n)) throw new Error(`${path} must name the issue (#${n}) so it stays tied to it.`);
+  const issue = JSON.parse(gh('issue', 'view', n, '--json', 'labels'));
+  if (!issue.labels.some(l => l.name === LABEL)) throw new Error(`#${n} is not a feedback issue.`);
+  gh('issue', 'comment', n, '--body', reproComment(path));
+  console.log(`#${n}: reproduced by ${path}.`);
 }
 
 /** Feedback issues waiting for an email reply, grouped by player (by the address, read with the key). */
@@ -449,8 +495,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (command === 'sync') sync(process.argv.includes('--dry-run')).catch(e => { console.error(e.message); process.exitCode = 1; }).then(() => expire(process.argv.includes('--dry-run'))).catch(fail);
   else if (command === 'expire') expire(process.argv.includes('--dry-run')).catch(fail);
   else if (command === 'pending') pendingEmails().catch(fail);
-  else if (command === 'reply' && a && b && option('--lang')) reply(a, b, option('--lang'), { dryRun: process.argv.includes('--dry-run'), testTo: option('--test-to') }).catch(fail);
+  else if (command === 'reply' && a && b && option('--lang')) reply(a, b, option('--lang'), { dryRun: process.argv.includes('--dry-run'), testTo: option('--test-to'), noRepro: option('--no-repro') }).catch(fail);
+  else if (command === 'repro' && a && b) repro(a, b).catch(fail);
   else if (command === 'forget' && a) forget(a, b).catch(fail);
   else if (command === 'doubt' && a && b) doubt(a, b).catch(fail);
-  else { console.error('Usage: node tools/agents/feedback.mjs sync [--dry-run] | pending | reply <n>[,<n>…] <answer.txt> --lang <es|en|pt> [--dry-run | --test-to <address>] | forget <issue> "<reason>" | expire [--dry-run] | doubt <issue> <notes.txt>'); process.exit(2); }
+  else { console.error('Usage: node tools/agents/feedback.mjs sync [--dry-run] | pending | reply <n>[,<n>…] <answer.txt> --lang <es|en|pt> [--dry-run | --test-to <address>] [--no-repro "<why>"] | repro <issue> <test> | forget <issue> "<reason>" | expire [--dry-run] | doubt <issue> <notes.txt>'); process.exit(2); }
 }
