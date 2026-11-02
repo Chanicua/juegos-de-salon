@@ -102,15 +102,6 @@
           <a class="link-btn" id="btn-stick-lab" href="stick/">El prototipo, en inglés</a>
         </section>
 
-        <section class="panel seccion" id="seccion-stack">
-          <h2>🗼 Babel</h2>
-          <p class="muted" style="margin:0">Inspirado en <a href="https://www.ketchappgames.com/" target="_blank" rel="noopener">Stack</a>, de Ketchapp. Un bloque se desliza sobre la torre y un toque lo suelta. Lo que sobresale se corta, y el siguiente bloque es más chico. Si cae justo encima, no se corta nada. ¿Hasta dónde llega tu torre?</p>
-          <p class="muted" style="margin:0;font-size:0.85rem">Listo para lanzar (D-517): en los tres idiomas, con su página <a href="../babel/">/babel/</a>, ranking, La Copa y Uno al día (desde el mazo del 8 de noviembre). Publicar para todos lo muestra al instante en la portada, la búsqueda y las copas nuevas; Volver al laboratorio lo vuelve a esconder.</p>
-          <p class="muted" style="margin:0;font-size:0.85rem">🧪 Con tu llave, la portada de /babel/ tiene «Simular final»: eliges los pisos y la torre parte armada, caen solos los tres últimos bloques, falla el siguiente y se ve la pantalla de fin. No queda en ningún ranking. Está en la pestaña 🧪 plegada del borde izquierdo, para que la portada se vea como la ven los jugadores.</p>
-          <p class="muted" style="margin:0;font-size:0.85rem">🎵 Con música: desde la cuenta regresiva hasta 7 segundos después de perder, cuando se apaga de a poco. Cada partida elige al azar una de cuatro pistas retro, bajita para que los sonidos del juego se oigan encima, y la pantalla final da el crédito del tema. En la portada, «🎵 Música: sí / no» la apaga (queda guardado en el teléfono); el botón de silencio también. Sale con Babel al publicarlo.</p>
-          <a class="btn btn--yellow" id="btn-stack" href="../babel/">🗼 Jugar Babel</a>
-          <a class="link-btn" id="btn-stack-lab" href="stack/">El prototipo, en inglés</a>
-        </section>
 
 
         <section class="panel seccion" id="seccion-dominorama">
@@ -222,6 +213,16 @@
           <!-- Each card carries the day it launched; bodega.js folds them by week this month and by month before (#956) -->
           <input type="search" class="bodega-buscar" id="bodega-buscar" placeholder="🔎 Buscar una mejora" aria-label="Buscar una mejora">
           <p class="muted bodega-nada" id="bodega-nada" hidden>Ninguna mejora lanzada tiene esa palabra.</p>
+          <section class="panel seccion plegada" id="seccion-stack" data-launched="2026-11-02">
+            <details>
+              <summary><h2>🗼 Babel</h2><span class="flecha" aria-hidden="true">›</span></summary>
+              <div class="detalle">
+                <p class="muted" style="margin:0">🚀 Lanzado. Inspirado en <a href="https://www.ketchappgames.com/" target="_blank" rel="noopener">Stack</a>, de Ketchapp: Babel ya está para todos en la portada, la búsqueda y las copas nuevas, con su página, ranking y Uno al día. Un bloque se desliza sobre la torre y un toque lo suelta; lo que sobresale se corta. Suena con música retro, que se apaga en la portada con «🎵 Música: sí / no».</p>
+                <a class="btn btn--yellow" id="btn-stack" href="../babel/">🗼 Jugar Babel</a>
+                <a class="link-btn" id="btn-stack-lab" href="stack/">El prototipo, en inglés</a>
+              </div>
+            </details>
+          </section>
           <section class="panel seccion plegada" id="seccion-copa-contexto" data-launched="2026-11-01">
             <details>
               <summary><h2>🏆 La Copa: tu copa, tu lugar y el juego del día en la portada</h2><span class="flecha" aria-hidden="true">›</span></summary>
