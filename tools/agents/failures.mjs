@@ -77,7 +77,7 @@ export function parseLog(log) {
     let m;
     // A step that failed with no test of its own (the README check, a lint): the step is the test
     if (/^##\[error\]Process completed with exit code/.test(t)) {
-      if (step && !failures.some(f => f.step === step)) failures.push({ test: step, error: excerpt(stepLines), step });
+      if (step && !failures.some(f => f.step === step)) failures.push({ test: step, error: excerpt(stepLines), step, bare: true });
       continue;
     }
     if (!NOISE.test(t)) stepLines.push(t);
@@ -93,7 +93,10 @@ export function parseLog(log) {
     }
     if (current && !NOISE.test(t)) lines.push(t);
   }
-  return failures.map(({ test, error }) => ({ test, error }));
+  // A step with no test of its own counts only when no test failed: end-to-end's gate job ("Run echo
+  // \"list: success · scripts: failure\"") fails whenever a script does, and is not a failure of its own
+  const tests = failures.filter(f => !f.bare);
+  return (tests.length ? tests : failures).map(({ test, error }) => ({ test, error }));
 }
 
 /** The first three lines that look like an error, or the last three lines when none does. */
