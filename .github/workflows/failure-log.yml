@@ -50,9 +50,8 @@ jobs:
           if git fetch -q origin failure-log; then
             git worktree add -q store FETCH_HEAD
           else
-            git worktree add -q --detach store
-            git -C store checkout -q --orphan failure-log
-            git -C store rm -rq .
+            # An empty orphan worktree: `checkout --orphan` + `rm -r` refused, every file being staged
+            git worktree add -q --orphan -b failure-log store
             echo '{ "records": [] }' > store/failures.json
           fi
 
