@@ -64,7 +64,9 @@ Under them: "📅 Today's course is the same for everyone. Pass the phone and co
   no length): three ❤️ at the top left of the night. A fall costs one, which goes dark: "Too short!" or
   "Too long!" with "❤️ 2 lives left" or "Last life!" under it, and after a moment the ninja is back on the
   same pillar with a new stick, the score kept and the flag streak gone (a moving pillar starts sliding
-  again). The third fall ends the run. The share card shows each fall as 🕳️ where it happened.
+  again). Before that it climbs back: it peeks up from the gap and throws a grapple in an arc; the rope
+  flies with soft bends that ease as the hook bites the edge, then bends over the lip and hangs out in the
+  gap, clear of the pillar's wall, while the ninja climbs it pull by pull. The third fall ends the run. The share card shows each fall as 🕳️ where it happened.
 - **The flag** stands at each pillar's center, a lit pink strip at its foot: the original's red dot, made a
   flag. The one to reach waves faster and glows. **A tip within 4.5 units of the center** (the strip) is a
   **perfect**: three rings of light (cyan, pink, gold) emerge from the tip one after the other, bigger with
