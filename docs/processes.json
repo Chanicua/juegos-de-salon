@@ -1,5 +1,5 @@
 {
-  "checkedUpTo": "d2bb10d269a969ac7e7e4dc42d00e814190c308b",
+  "checkedUpTo": "72dec3ab7932ab55de5f9da4d0f93f1d3ebaf329",
   "patterns": [
     {
       "key": "version-hacia-atras",
@@ -358,6 +358,18 @@
         "what": "record/dispatch resolve the commit to a full sha on origin/main, else refuse (processes.test.mjs)",
         "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1069"
       }
+    },
+    {
+      "key": "stale-port-server",
+      "what": "Usability round: a leftover http.server from a removed worktree held port 8799; tournament.mjs failed like a code bug",
+      "seen": [
+        {
+          "date": "2026-11-02",
+          "what": "Usability round: a leftover http.server from a removed worktree held port 8799; tournament.mjs failed like a code bug",
+          "commit": null
+        }
+      ],
+      "mechanism": null
     }
   ],
   "mechanisms": [
@@ -448,12 +460,12 @@
   ],
   "dispatches": {
     "documentation": {
-      "date": "2026-11-01",
-      "to": "d2bb10d269a969ac7e7e4dc42d00e814190c308b"
+      "date": "2026-11-02",
+      "to": "72dec3ab7932ab55de5f9da4d0f93f1d3ebaf329"
     },
     "usability": {
-      "date": "2026-11-01",
-      "to": "d2bb10d269a969ac7e7e4dc42d00e814190c308b"
+      "date": "2026-11-02",
+      "to": "72dec3ab7932ab55de5f9da4d0f93f1d3ebaf329"
     },
     "ideas": {
       "date": "2026-10-28",
@@ -588,6 +600,14 @@
       "issue": null,
       "pr": null,
       "note": "docs #1105; usability running"
+    },
+    {
+      "date": "2026-11-02",
+      "from": "d2bb10d269a969ac7e7e4dc42d00e814190c308b",
+      "to": "72dec3ab7932ab55de5f9da4d0f93f1d3ebaf329",
+      "issue": null,
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1132",
+      "note": "docs #1132 merged; usability clean (476 ok), no PR; collected 21 entries; home order updated"
     }
   ],
   "ownerDecisions": [
