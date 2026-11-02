@@ -214,7 +214,8 @@
       display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;
       background: var(--glass); border: 1px solid var(--glass-border); color: var(--ink); padding: 6px 14px;
     }
-    @container (max-width: 520px) {
+    /* 560, not 520: five types side by side in Spanish or Portuguese need ~544 px, and a 900 px screen gives a 524 px row */
+    @container (max-width: 560px) {
       .filtros .tipos { gap: 6px; }
       .filtros .tipos button { flex: 1 1 auto; flex-direction: column; gap: 0; padding: 6px 6px; border-radius: 18px; font-size: 0.8rem; line-height: 1.15; }
       .filtros .tipos button .ficha-emoji { font-size: 1.15rem; }
