@@ -509,6 +509,7 @@ export const SUELTOS = [
     tipos: ['skill'],
     duration: '1–3',
     nuevoDesde: '2026-11-02',
+    diasNuevo: 10,
   },
   {
     // Out of the lab in D-517 with Shinobi, launched the same way by flags/stack (see Shinobi). Its name is Babel (the
@@ -529,6 +530,7 @@ export const SUELTOS = [
     tipos: ['skill'],
     duration: '1–3',
     nuevoDesde: '2026-11-02',
+    diasNuevo: 10,
   },
   // Los del laboratorio viven en /labs/<slug>/ (D-267): al salir pasan a /<slug>/
 ].map(m => ({ ...m, players: '1', path: `${m.labs ? 'labs/' : ''}${m.slug}/`, available: !m.labs, suelto: true, ...(m.lanza ? { oculto: !lanzado(m.lanza) } : {}) }));
@@ -573,7 +575,8 @@ export const DIAS_NUEVO = 7;
 export const esNuevo = (g, hoy = new Date()) => {
   if (!g?.nuevoDesde) return false;
   const desde = Date.parse(`${g.nuevoDesde}T00:00:00`);
-  return hoy.getTime() >= desde && hoy.getTime() < desde + DIAS_NUEVO * 24 * 60 * 60 * 1000;
+  // A game may carry its own length (`diasNuevo`): Shinobi and Babel keep it 10 days (the owner's request, 2026-11-01)
+  return hoy.getTime() >= desde && hoy.getTime() < desde + (g.diasNuevo || DIAS_NUEVO) * 24 * 60 * 60 * 1000;
 };
 
 /**

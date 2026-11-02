@@ -113,3 +113,14 @@ console.log(`games: los ${GAMES.length} juegos tienen motor, tests, gancho y esp
   } finally { G.pop(); }
   console.log('games: the new ones carry their date for the "New" label (D-333)');
 }
+
+// Shinobi and Babel keep their "New" label 10 days from 2026-11-02 (the owner's request)
+{
+  const { esNuevo, PORTADA } = await import('./games.js');
+  const assert = (await import('node:assert/strict')).default;
+  for (const id of ['stick', 'stack']) {
+    const g = PORTADA.find(x => x.id === id) || (await import('./games.js')).gameById?.(id);
+    assert.ok(esNuevo(g, new Date('2026-11-11T23:00:00')), `${id}: New on its 10th day`);
+    assert.ok(!esNuevo(g, new Date('2026-11-12T00:00:00')), `${id}: not on the 11th`);
+  }
+}
