@@ -71,8 +71,9 @@ export function decision(pr, sha, title, by) {
     summary: `PR #${pr} (${title}) is in the 🔴 lane (docs/LANES.md): it never merges on its own.`,
     decisions: [{
       question: `Approve PR #${pr} at ${sha.slice(0, 7)}`,
-      context: `Files that make it 🔴:\n${by.slice(0, 10).map(x => `- \`${x.file}\` — ${x.reason}`).join('\n')}\n\nYes turns its \`${STATUS}\` check green for this commit; a later push asks again. No leaves it blocked.`,
-      yes: [{ type: 'approve-pr', pr, sha }],
+      context: `Files that make it 🔴:\n${by.slice(0, 10).map(x => `- \`${x.file}\` — ${x.reason}`).join('\n')}\n\nYes turns its \`${STATUS}\` check green for this commit, waits for tests and end-to-end, merges it and publishes the site; a later push asks again. No leaves it blocked.`,
+      // Approved means merged: a 🔴 PR has no auto-merge, and an approval alone left PRs waiting
+      yes: [{ type: 'approve-pr', pr, sha }, { type: 'merge', pr }],
       no: [{ type: 'nothing' }],
     }],
   };

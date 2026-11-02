@@ -192,6 +192,9 @@ export function recordDone(body, decision, option, result, made = true) {
 
 /* ------------------------------------------------------------------ */
 /* What touches GitHub                                                */
+/** An owner-approval issue (docs/LANES.md) closes itself once its tick has been carried out. */
+export const closesWhenDone = (title = '') => /^Owner approval: PR #\d+$/.test(title);
+
 /* ------------------------------------------------------------------ */
 
 const gh = (...args) => execFileSync('gh', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 45 * 60 * 1000 });
@@ -284,6 +287,8 @@ function main() {
   }
   if (failed) lines.push('', 'To retry what failed, uncheck the box and check it again.');
   gh('issue', 'comment', n, '-R', repo, '--body', lines.join('\n'));
+  // The PR is merged (or the owner said No): nothing is left to decide, so the question goes away
+  if (!failed && closesWhenDone(event.issue.title)) gh('issue', 'close', n, '-R', repo, '--reason', 'completed');
   console.log(lines.join('\n'));
   if (failed) process.exit(1);
 }

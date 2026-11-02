@@ -85,7 +85,7 @@ marks the old decision (`amended by` / `replaced by`). A canon that contradicts 
    (agents, auto-merge or not): [docs/LANES.md](docs/LANES.md).
 2. `node tools/firebase/in-progress.mjs` (is anyone playing?).
 3. No merge without ✅ `tests` and `end-to-end` on GitHub (D-143, D-216).
-4. Ready → `gh pr merge <n> --auto --merge` (D-216), unless the PR is 🔴 (the owner approves it, D-519), the owner said not to (D-419) or is
+4. Ready → `gh pr merge <n> --auto --merge` (D-216), unless the PR is 🔴 (the owner's Yes approves and merges it, D-519), the owner said not to (D-419) or is
    reviewing round by round on the preview (D-429).
 5. Then `node tools/agents/wait-pr.mjs <n>` in the background (D-400); on `merged`, check GitHub and go on.
 

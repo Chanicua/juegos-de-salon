@@ -29,7 +29,7 @@ job's log, find the cause, fix it on the branch and push, without asking the own
    last commit that passed end-to-end (`tools/e2e/since-passed.mjs`, D-392): fix a red run in one push,
    because until something passes every push retests the whole PR.
 4. **Auto-merge by default** (D-216, the owner's request), **except a 🔴 PR** (D-519: it waits for the
-   owner's `approve-pr` tick, see LANES.md): when the PR is ready to merge
+   owner's tick, whose Yes runs `approve-pr` then `merge` and closes the issue, see LANES.md): when the PR is ready to merge
    —the agents are done and their fixes are pushed, and the `changelog/<branch>.md` entry is already
    on the branch (D-300)—, GitHub's auto-merge is turned on instead of waiting for the ✅ by hand:
    ```bash

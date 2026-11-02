@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { laneOf, laneOfPr, globRe, decision, report, CONFIG, ORDER } from './lanes.mjs';
-import { invalidAction } from './approve.mjs';
+import { invalidAction, closesWhenDone } from './approve.mjs';
 import { decisionsBody } from './processes.mjs';
 
 // Globs
@@ -58,6 +58,12 @@ assert.match(report(red, 'x'), /^Lane: 🔴 red/);
 const sha = 'b'.repeat(40);
 const d = decision(12, sha, 'T', red.by);
 assert.equal(invalidAction(d.decisions[0].yes[0]), null);
+// Yes approves and then merges: an approved PR is not left waiting (it has no auto-merge)
+assert.deepEqual(d.decisions[0].yes.map(a => a.type), ['approve-pr', 'merge']);
+assert.equal(invalidAction(d.decisions[0].yes[1]), null);
+assert.equal(d.decisions[0].yes[1].pr, 12);
+assert.ok(closesWhenDone(d.title), 'its issue closes itself once carried out');
+assert.ok(!closesWhenDone('Pending work') && !closesWhenDone('Owner approval: PR #12 and more'));
 const body = decisionsBody(d);
 assert.ok(body.includes(sha), 'the body names the commit, so a push asks again');
 assert.match(body, /approve-pr/);
