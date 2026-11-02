@@ -63,8 +63,8 @@ Under them: "📅 Today's course is the same for everyone. Pass the phone and co
 - **Three lives** (the owner's request, 2026-10-26: one fall could end a run in ten seconds, so a run had
   no length): three ❤️ at the top left of the night. A fall costs one, which goes dark: "Too short!" or
   "Too long!" with "❤️ 2 lives left" or "Last life!" under it, and after a moment the ninja is back on the
-  same pillar with a new stick, the score kept and the flag streak gone (a moving pillar starts sliding
-  again). Before that it climbs back: it peeks up from the gap and throws a grapple in an arc; the rope
+  same pillar with a new stick, the score kept and the flag streak gone (a moving pillar never stopped,
+  so it is still sliding where it was, with no jump). Before that it climbs back: it peeks up from the gap and throws a grapple in an arc; the rope
   flies with soft bends that ease as the hook bites the edge, then bends over the lip and hangs out in the
   gap, clear of the pillar's wall, while the ninja climbs it pull by pull. The third fall ends the run. The share card shows each fall as 🕳️ where it happened.
 - **The flag** stands at each pillar's center, a lit pink strip at its foot: the original's red dot, made a
@@ -87,7 +87,9 @@ Under them: "📅 Today's course is the same for everyone. Pass the phone and co
   the one to reach, along a faint dashed cyan rail with an arrow at each end that shows their whole swing.
   A few move at first, slowly (18 units each way, a swing every 4.4 s); by the 60th, about two in three
   move, up to 60 units each way, a swing every 1.9 s. The stick is judged **where the pillar is when the
-  stick lands** (0.32 s after letting go), and the pillar stops right there, so the ninja can cross. A
+  stick lands** (0.32 s after letting go), and if the stick is on it the pillar stops right there, so the ninja can cross. A miss does
+  not stop it: it slides on through the fall and the climb back, so it never jumps to another place (the
+  owner's request, 2026-11-02). A
   moving pillar never comes closer than 26 units, and its whole swing fits on the screen. The first time one comes, until the phone has crossed one, it says "This pillar moves: aim where it
   will be when the stick lands".
 - **The course** is the day's, on the phone's calendar: the same pillars, gaps and slides for
