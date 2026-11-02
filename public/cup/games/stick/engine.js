@@ -126,21 +126,24 @@ export function suspend(g, t) {
  * The finger up at `t`: the stick falls. Returns what will happen when it lands:
  * - `perfect`: its tip lands within PERFECT of the next pillar's center (on its flag);
  * - `land`: on the next pillar;
- * - `short` or `long`: in the gap, or past the pillar: the ninja runs to the tip and falls.
+ * - `short`: in the gap: nothing holds its tip, so it swings on down into the gap; the ninja runs to the
+ *   pillar's edge and falls after it;
+ * - `long`: past the pillar: the ninja runs to the tip and falls.
  * The ninja starts running when the stick is down (TURN_MS later).
  */
 export function release(g, t) {
   if (g.phase !== 'growing') return null;
   const len = stickAt(g, t), cur = current(g), tip = right(cur) + len;
-  // A moving pillar is caught where it is when the stick lands, and stops there
+  // A moving pillar is judged where it is when the stick lands, and stops there if the stick is on it; a
+  // miss leaves it sliding on, so after the climb back it is where it would be, with no jump
   const nx = pillarAt(g, g.i + 1, t + TURN_MS), real = next(g);
-  if (real.move) { real.stopAt = t + TURN_MS; real.landX = nx.x; }
   const center = nx.x + nx.w / 2;
   const kind = tip < nx.x ? 'short' : tip > right(nx) ? 'long' : Math.abs(tip - center) <= PERFECT ? 'perfect' : 'land';
   const ok = kind === 'perfect' || kind === 'land';
+  if (real.move && ok) { real.stopAt = t + TURN_MS; real.landX = nx.x; }
   g.stick = len; g.phase = 'walking';
   g.walk = {
-    t0: t + TURN_MS, from: restX(cur), to: ok ? restX(nx) : tip, kind, tip, ok, done: false,
+    t0: t + TURN_MS, from: restX(cur), to: ok ? restX(nx) : kind === 'short' ? right(cur) : tip, kind, tip, ok, done: false,
   };
   return { kind, len, tip, offset: tip - center };
 }
@@ -185,14 +188,12 @@ export function advance(g, t) {
 }
 
 /**
- * After a fall that left lives, the ninja is back on the same pillar at `t`: a new stick, the streak gone,
- * and a moving pillar sliding again from where its clock starts over.
+ * After a fall that left lives, the ninja is back on the same pillar at `t`: a new stick and the streak
+ * gone. A moving pillar never stopped (a miss does not stop it), so it goes on sliding from where it is.
  */
 export function revive(g, t) {
   if (g.phase !== 'lost') return false;
-  const p = next(g);
-  delete p.stopAt; delete p.landX;
-  g.phase = 'ready'; g.stick = 0; g.held = 0; g.walk = null; g.moveT0 = t;
+  g.phase = 'ready'; g.stick = 0; g.held = 0; g.walk = null;
   return true;
 }
 

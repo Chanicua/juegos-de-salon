@@ -49,17 +49,24 @@ Under them: "📅 Today's course is the same for everyone. Pass the phone and co
   dark silhouettes with a moonlit ridge, each moving slower than the pillars (parallax). The pillars are
   dark columns with a neon top edge (the house's colors, one after another) and faintly lit sides, fading
   into the night at the bottom. The score is big and yellow at the top.
+- **From night to day** (`DAY_EVERY` in `scene.js`): every 15 points the sky eases on a stage over about
+  two seconds: dawn (the moon sets, the stars fade, a sun rises behind the mountains and the ranges warm),
+  the morning, and from 45 points the full day, which stays. A painted sky covers the app's night from
+  dawn on; with reduced motion the change is instant.
 - **Hold anywhere** (or Space or Enter) and the stick grows up from the edge of the pillar, with a soft
   rising note every so often, so the length is heard too. **Let go** and it falls across the gap. The
   first time it says "Hold to stretch the stick".
-- **Its tip on the next pillar:** the ninja runs over, headband tails flying, and scores **1**. In the gap
-  (too short) or past the pillar (too long), the ninja runs to the tip, the stick drops and the ninja falls:
-  "Too short!" or "Too long!".
+- **Its tip on the next pillar:** the ninja runs over, headband tails flying, and scores **1**. Too short,
+  the stick has nothing under its tip and swings on down into the gap; the ninja runs to its pillar's edge
+  and falls after it: "Too short!". Past the pillar (too long), the ninja runs to the tip, the stick drops
+  and the ninja falls: "Too long!".
 - **Three lives** (the owner's request, 2026-10-26: one fall could end a run in ten seconds, so a run had
   no length): three ❤️ at the top left of the night. A fall costs one, which goes dark: "Too short!" or
   "Too long!" with "❤️ 2 lives left" or "Last life!" under it, and after a moment the ninja is back on the
-  same pillar with a new stick, the score kept and the flag streak gone (a moving pillar starts sliding
-  again). The third fall ends the run. The share card shows each fall as 🕳️ where it happened.
+  same pillar with a new stick, the score kept and the flag streak gone (a moving pillar never stopped,
+  so it is still sliding where it was, with no jump). Before that it climbs back: it peeks up from the gap and throws a grapple in an arc; the rope
+  flies with soft bends that ease as the hook bites the edge, then bends over the lip and hangs out in the
+  gap, clear of the pillar's wall, while the ninja climbs it pull by pull. The third fall ends the run. The share card shows each fall as 🕳️ where it happened.
 - **The flag** stands at each pillar's center, a lit pink strip at its foot: the original's red dot, made a
   flag. The one to reach waves faster and glows. **A tip within 4.5 units of the center** (the strip) is a
   **perfect**: three rings of light (cyan, pink, gold) emerge from the tip one after the other, bigger with
@@ -80,7 +87,9 @@ Under them: "📅 Today's course is the same for everyone. Pass the phone and co
   the one to reach, along a faint dashed cyan rail with an arrow at each end that shows their whole swing.
   A few move at first, slowly (18 units each way, a swing every 4.4 s); by the 60th, about two in three
   move, up to 60 units each way, a swing every 1.9 s. The stick is judged **where the pillar is when the
-  stick lands** (0.32 s after letting go), and the pillar stops right there, so the ninja can cross. A
+  stick lands** (0.32 s after letting go), and if the stick is on it the pillar stops right there, so the ninja can cross. A miss does
+  not stop it: it slides on through the fall and the climb back, so it never jumps to another place (the
+  owner's request, 2026-11-02). A
   moving pillar never comes closer than 26 units, and its whole swing fits on the screen. The first time one comes, until the phone has crossed one, it says "This pillar moves: aim where it
   will be when the stick lands".
 - **The course** is the day's, on the phone's calendar: the same pillars, gaps and slides for
