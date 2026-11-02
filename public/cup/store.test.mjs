@@ -154,9 +154,10 @@ await test('comodín antes de empezar; resultado una vez y en su ventana', async
 });
 
 await test('el reloj adelantado abre y cierra días', async () => {
-  // Two days and two hours: on the day a time zone leaves summer time (25 hours, as 2026-11-01 in
-  // Los Angeles) two plain days still fell inside day 1's window and this failed
-  admin.adelantar(DIA_MS * 2 + 2 * 3600e3);
+  // To two hours into day 3, from its own window: a fixed two days and two hours failed on the day a
+  // time zone leaves summer time (25 hours, as 2026-11-01 in Los Angeles), and run late in the evening
+  // it jumped past day 3, so the test failed after 22:00
+  admin.adelantar(meta.win[3].a + 2 * 3600e3 - admin.now());
   await rechaza(otro.resultado(CODE, 1, 'bbbbbb', { s: 1, ms: 1 }), 'ventana');
   await otro.empezar(CODE, 3, 'bbbbbb');
   await otro.resultado(CODE, 3, 'bbbbbb', { s: 300, ms: 1 });
