@@ -25,7 +25,9 @@ await b.send('Page.addScriptToEvaluateOnNewDocument', { source: `window.__before
 // (the copy is removed only once the page that would save it is done, or it saves it again after)
 await b.go(`${SITE}/?test`, 300);
 await waitFor(`${drawn} && !!localStorage.getItem('${FOTO}')`);
-await ev(`localStorage.removeItem('${FOTO}')`);
+// The page saves its copy from more than one late step (La Copa's card, Uno al día's place): remove it
+// until it stays removed, or a save landing after the removal hands the next visit a copy
+for (let i = 0; i < 10; i++) { await ev(`localStorage.removeItem('${FOTO}')`); await sleep(500); if (!await ev(`!!localStorage.getItem('${FOTO}')`)) break; }
 await b.go(`${SITE}/?test`, 300);
 ok(await waitFor(`${drawn} && !!localStorage.getItem('${FOTO}')`), 'the first visit saves a copy of the list');
 ok(await ev(`!document.getElementById('games').classList.contains('foto') && window.__before !== true`), 'with no copy, the list is the module\'s');
