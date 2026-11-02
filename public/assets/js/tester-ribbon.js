@@ -56,7 +56,9 @@ let ribbon = null, ctx = null, t = T.es;
 function place() {
   if (!ribbon) return;
   const bar = document.querySelector('.topbar');
-  const top = bar && bar.getBoundingClientRect().height ? bar.getBoundingClientRect().bottom + 6 : null;
+  // On the home page the bar has no frame of its own, so the tab sits further down to breathe
+  const gap = bar && bar.classList.contains('portada-barra') ? 22 : 6;
+  const top = bar && bar.getBoundingClientRect().height ? bar.getBoundingClientRect().bottom + gap : null;
   ribbon.style.setProperty('--tr-top', top == null ? 'calc(14px + var(--safe-top))' : `${Math.max(8, top)}px`);
 }
 
