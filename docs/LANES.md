@@ -22,10 +22,13 @@ first rule that matches a file gives its lane. A new kind of risky file is a new
 The `lane` job in `tests.yml` runs on every PR push. For 🔴 it adds the `needs-owner` label, sets the
 `owner-approval` status red on the PR's head commit and opens a one-tap decision issue (D-273). The
 owner's Yes runs `approve-pr` (`approve.mjs`), which turns `owner-approval` green **for that commit
-only**: a later push asks again. For 🟢/🟡 the job sets `owner-approval` green at once.
+only**: a later push asks again. The same Yes then runs `merge`: it waits for `tests` and `end-to-end`,
+merges and publishes the site, and the issue closes itself, so an approved PR is never left waiting.
+If a check fails, the issue says so and stays open; ticking again after the fix retries. For 🟢/🟡 the job
+sets `owner-approval` green at once.
 `owner-approval` is a required status on `main`, so a 🔴 PR cannot merge without the tick.
 
-A session never turns on auto-merge for a 🔴 PR; it says in the PR that it waits for the owner.
+A session never turns on auto-merge for a 🔴 PR; it says in the PR that it waits for the owner (whose Yes merges it).
 Storing something new about players is 🔴 too even when no red file changes: the privacy page
 changes in the same PR (CLAUDE.md), which makes it red.
 
