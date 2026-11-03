@@ -47,6 +47,8 @@
 .titulo-aletazo .logo { font-size: 2.2rem; animation: aletazo-mece 1.6s ease-in-out infinite; }
 @keyframes aletazo-mece { 0%, 100% { transform: translateY(2px) rotate(-6deg); } 50% { transform: translateY(-4px) rotate(8deg); } }
 .lema { margin: 0; color: var(--muted); font-weight: 700; }
+.credito { margin: -6px 0 0; font-size: 0.85rem; color: var(--muted); }
+.credito a { color: var(--cyan); }
 .pasos { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; text-align: left; }
 .pasos li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; font-size: 0.95rem; }
 .paso-ico { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 1.05rem; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border); }
@@ -75,6 +77,12 @@
 }
 /* A short phone (320×568): the card tightens so 🐤 Play stays in view (U-39) */
 @media (max-height: 640px) {
-  .tarjeta { gap: 9px; padding: 14px; }
+  .capa { padding: 10px; }
+  .tarjeta { gap: 8px; padding: 12px 14px; }
+  .titulo-aletazo .display { font-size: 2.2rem; }
+  .titulo-aletazo .logo { font-size: 1.7rem; }
+  .pasos { gap: 6px; }
   .pasos li { font-size: 0.88rem; }
+  .paso-ico { width: 30px; height: 30px; font-size: 0.95rem; }
+  .btn#btn-jugar { padding-block: 12px; }
 }

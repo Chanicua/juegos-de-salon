@@ -29,10 +29,12 @@ const PLAY = (until, ms) => `(async () => {
 
 await b.go(`${SITE}/labs/`);
 ok(await ev(`document.querySelector('#activos #seccion-aletazo #btn-aletazo')?.getAttribute('href')`) === 'flap/', 'the lab offers Aletazo under Active projects');
+ok(/Flappy Bird/.test(await ev(`document.querySelector('#seccion-aletazo a[href*="Flappy_Bird"]')?.textContent || ''`)), 'and says it is inspired by Flappy Bird, with its link');
 
 await b.go(`${SITE}/labs/flap/?test`, 1200);
 ok(await waitFor(`!!document.getElementById('btn-jugar')?.textContent`), 'the cover has Jugar');
 ok(/Un toque, un aletazo/.test(await ev(`document.getElementById('lema').textContent`)), 'the tagline');
+ok(/Inspirado en Flappy Bird, de Dong Nguyen/.test(await ev(`document.getElementById('credito').textContent`)) && /wikipedia\.org\/wiki\/Flappy_Bird/.test(await ev(`document.getElementById('link-flappy-bird')?.href || ''`)), 'the cover credits Flappy Bird, with its link');
 ok(await ev(`document.querySelectorAll('#pasos li').length`) === 3, 'three steps');
 const y0 = await ev(`__aletazo.g.bird.y`), x0 = await ev(`__aletazo.g.gates[0].x`);
 await sleep(700);
@@ -71,6 +73,7 @@ ok(await waitFor(`!document.getElementById('resultado').hidden`, 12000) && /Tu m
 
 await b.go(`${SITE}/labs/flap/?lang=en&test`, 1200);
 ok(await waitFor(`/One tap, one flap/.test(document.getElementById('lema').textContent)`), 'in English, the cover is in English');
+ok(/Inspired by Flappy Bird, by Dong Nguyen/.test(await ev(`document.getElementById('credito').textContent`)), 'the credit too');
 ok(/Best: \d+/.test(await ev(`document.getElementById('mejor-portada').textContent`)), 'and shows the best kept on this phone');
 
 ok(!b.errors.length, `no errors on the page ${JSON.stringify(b.errors)}`);

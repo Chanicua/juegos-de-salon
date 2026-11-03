@@ -3,7 +3,10 @@
 A one-tap flyer for one player: every tap gives the bird a wing flap ("aletazo") upwards, gravity
 pulls it down, and the course scrolls from right to left. The bird flies through neon hoops and the
 openings of walls, and it gets harder every 5 gates. An original game in a well-known genre: the bird,
-the hoops, the walls and the look are our own, drawn in the app's neon night. It was built with a
+the hoops, the walls and the look are our own, drawn in the app's neon night. **Inspired by
+[Flappy Bird](https://en.wikipedia.org/wiki/Flappy_Bird), by Dong Nguyen (.GEARS, 2013)**, and it says
+so on the cover and in the lab (the link goes to Wikipedia in the player's language: the game has no
+official page since it was pulled in 2014). It was built with a
 contributor, round by round on a playable prototype, before entering the lab.
 
 ## Summary
@@ -17,7 +20,7 @@ contributor, round by round on a playable prototype, before entering the lab.
 ## Cover
 
 A glass card over a demo that flies itself (the engine's autopilot): the title with a 🐤 that sways,
-the tagline («Un toque, un aletazo.»), three steps, «🐤 Jugar», the best score on this phone and the
+the tagline («Un toque, un aletazo.»), the credit («Inspirado en Flappy Bird, de Dong Nguyen.», with the link), three steps, «🐤 Jugar», the best score on this phone and the
 language toggle. The steps:
 
 1. 👆 Toca para subir un poco.

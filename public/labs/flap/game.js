@@ -1,5 +1,5 @@
 /**
- * Aletazo — lab prototype: a one-tap flyer. Every tap gives the bird a wing flap upwards, gravity
+ * Aletazo — lab prototype: a one-tap flyer, inspired by Flappy Bird (Dong Nguyen, 2013), credited on the cover. Every tap gives the bird a wing flap upwards, gravity
  * pulls it down, and the course comes at it: hoops (dead center counts double), walls with a single
  * opening, spinning spikes. A new level every 5 gates, each one faster and tighter; 3 lives.
  *
@@ -23,6 +23,7 @@ const LOCALES = {
   es: {
     nombre: 'Aletazo',
     lema: 'Un toque, un aletazo.',
+    credito: ['Inspirado en ', ', de Dong Nguyen.'], wiki: 'https://es.wikipedia.org/wiki/Flappy_Bird',
     como: [
       ['👆', 'Toca para subir un poco.'],
       ['⭕', 'Pasa por aros y huecos. Al medio vale doble.'],
@@ -39,6 +40,7 @@ const LOCALES = {
   en: {
     nombre: 'Aletazo',
     lema: 'One tap, one flap.',
+    credito: ['Inspired by ', ', by Dong Nguyen.'], wiki: 'https://en.wikipedia.org/wiki/Flappy_Bird',
     como: [
       ['👆', 'Tap to rise a little.'],
       ['⭕', 'Fly through hoops and gaps. Dead center counts double.'],
@@ -55,6 +57,7 @@ const LOCALES = {
   pt: {
     nombre: 'Aletazo',
     lema: 'Um toque, uma batida de asa.',
+    credito: ['Inspirado em ', ', de Dong Nguyen.'], wiki: 'https://pt.wikipedia.org/wiki/Flappy_Bird',
     como: [
       ['👆', 'Toque para subir um pouco.'],
       ['⭕', 'Passe por aros e brechas. No centro vale dobrado.'],
@@ -130,6 +133,8 @@ function texts() {
   document.documentElement.lang = lang === 'pt' ? 'pt-BR' : lang;
   $('btn-volver').textContent = L.laboratorio;
   $('lema').textContent = L.lema;
+  // The credit to the game it comes from, like Shinobi's and Babel's to Ketchapp
+  $('credito').replaceChildren(L.credito[0], el('a', { href: L.wiki, target: '_blank', rel: 'noopener', id: 'link-flappy-bird' }, 'Flappy Bird'), L.credito[1]);
   $('pasos').replaceChildren(...L.como.map(([e, t]) => el('li', {}, el('span', { class: 'paso-ico', 'aria-hidden': 'true' }, e), el('span', {}, t))));
   $('btn-jugar').textContent = L.jugar;
   $('mejor-portada').replaceChildren(...(best ? [fmt(L.mejor, ''), el('b', {}, String(best))] : []));
