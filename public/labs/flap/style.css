@@ -1,0 +1,80 @@
+/* Aletazo (lab). What is shared lives in assets/css/base.css: the night, the fonts, .btn, .display, .rainbow. */
+
+/* One screen: the top bar, the stage filling the rest, the comment link under it */
+.app { height: 100svh; min-height: 0; gap: 0; }
+.pie { text-align: center; }
+
+/* The stage: a tap anywhere on it flaps. The canvas is transparent over the app's night */
+.escenario {
+  position: relative; flex: 1; min-height: 340px; overflow: hidden; border-radius: var(--radius);
+  border: 1px solid var(--glass-border); background: rgba(10, 4, 24, 0.35);
+  box-shadow: inset 0 0 60px rgba(138, 77, 255, 0.18), 0 10px 30px rgba(0, 0, 0, 0.35);
+  touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; cursor: pointer; outline: none;
+}
+.escenario:focus-visible { box-shadow: 0 0 0 3px var(--cyan); }
+#lienzo { display: block; width: 100%; height: 100%; }
+
+/* What is read over the play */
+.hud { position: absolute; inset: 0; pointer-events: none; }
+.vidas { position: absolute; top: 12px; left: 14px; font-size: 1.35rem; letter-spacing: 2px; }
+.vidas .off { filter: grayscale(1) brightness(0.5); opacity: 0.5; }
+.nivel { position: absolute; top: 14px; right: 14px; font: 900 0.9rem var(--font-body); color: var(--muted); }
+.marcador {
+  position: absolute; top: 5%; left: 0; right: 0; text-align: center;
+  font: 900 clamp(3rem, 16vw, 4.4rem)/1 var(--font-num); font-variant-numeric: tabular-nums;
+  color: var(--yellow); text-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
+}
+.aviso {
+  position: absolute; top: calc(5% + clamp(3.4rem, 18vw, 4.8rem)); left: 0; right: 0; text-align: center;
+  font: 700 1.05rem var(--font-body); color: rgba(255, 255, 255, 0.88); transition: opacity 0.4s;
+}
+.aviso.fuera { opacity: 0; }
+.aviso.brilla { font: clamp(1.35rem, 7vw, 1.9rem)/1.1 var(--font-display); letter-spacing: 0.06em; padding: 0 14px; text-wrap: balance; animation: aletazo-brilla 1s ease-out forwards; }
+@keyframes aletazo-brilla { 0% { opacity: 0; transform: scale(0.7); } 20% { opacity: 1; transform: scale(1.1); } 70% { opacity: 1; transform: scale(1); } 100% { opacity: 0; } }
+
+/* The cover and the result: a glass card over the stage, the night still showing above it */
+.capa {
+  position: absolute; inset: 0; display: grid; align-items: end; padding: 14px; overflow-y: auto; cursor: default;
+  background: linear-gradient(to bottom, transparent 20%, rgba(21, 7, 38, 0.65));
+}
+.tarjeta {
+  background: rgba(21, 7, 38, 0.72); border: 1px solid var(--glass-border); border-radius: var(--radius);
+  padding: 18px; display: grid; gap: 12px; text-align: center;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.titulo-aletazo { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0; }
+.titulo-aletazo .display { font-size: clamp(2.4rem, 11vw, 3.4rem); }
+.titulo-aletazo .logo { font-size: 2.2rem; animation: aletazo-mece 1.6s ease-in-out infinite; }
+@keyframes aletazo-mece { 0%, 100% { transform: translateY(2px) rotate(-6deg); } 50% { transform: translateY(-4px) rotate(8deg); } }
+.lema { margin: 0; color: var(--muted); font-weight: 700; }
+.pasos { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; text-align: left; }
+.pasos li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; font-size: 0.95rem; }
+.paso-ico { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 1.05rem; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border); }
+.mejor { font: 800 0.95rem var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; }
+.mejor:empty { display: none; }
+.idioma { display: flex; justify-content: center; }
+.link-btn { background: none; border: 0; color: var(--muted); font: 700 0.95rem var(--font-body); text-decoration: underline; cursor: pointer; min-height: 44px; }
+.mejor b { color: var(--yellow); }
+
+/* The result: the stamp, the score, a line about how it went */
+.sello { justify-self: center; margin: 0; font: 1.3rem var(--font-display); letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 12px; border: 3px solid currentColor; border-radius: 10px; transform: rotate(-5deg); animation: aletazo-sello 0.5s ease-out 0.3s both; }
+.sello.fin { color: var(--pink); }
+.sello.record { color: var(--yellow); }
+@keyframes aletazo-sello { from { transform: rotate(-5deg) scale(0.4); opacity: 0; } to { transform: rotate(-5deg) scale(1); opacity: 1; } }
+.score-big { font: 900 clamp(2.8rem, 14vw, 3.8rem)/1.05 var(--font-num); font-variant-numeric: tabular-nums; color: var(--yellow); text-shadow: 0 4px 0 rgba(0, 0, 0, 0.35); }
+.veredicto { margin: -4px 0 0; font: 900 1.15rem/1.25 var(--font-body); text-wrap: balance; }
+
+/* Paused (a call, another app): over the play, until a tap */
+.pausa { position: absolute; inset: 0; display: grid; place-content: center; gap: 6px; text-align: center; font-weight: 700;
+  background: radial-gradient(closest-side, rgba(21, 7, 38, 0.85), rgba(21, 7, 38, 0.4) 70%, transparent); }
+.pausa .display { font-size: 2.6rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .titulo-aletazo .logo, .sello, .aviso.brilla { animation: none; }
+}
+/* A short phone (320×568): the card tightens so 🐤 Play stays in view (U-39) */
+@media (max-height: 640px) {
+  .tarjeta { gap: 9px; padding: 14px; }
+  .pasos li { font-size: 0.88rem; }
+}
