@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { coverOf, touchedGames, resolvedSteps, labsExits, stage, splashChanges } from './covers.mjs';
 
 // Pintaminas, Rutas rotas and Loteo (D-332) and Agentes (D-421) left the lab: their steps are in La Copa's texts now
-for (const slug of ['exploding-numbers']) {
+for (const slug of ['exploding-numbers', 'pulse']) {
   const { tagline, steps } = coverOf(readFileSync(new URL(`../../public/labs/${slug}/game.js`, import.meta.url), 'utf8'));
   assert.ok(tagline && tagline.length > 10, `${slug}: no tagline`);
   assert.ok(steps.length >= 2 && steps.length <= 3, `${slug}: ${steps.length} steps (U-18: up to 3)`);
