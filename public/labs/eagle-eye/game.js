@@ -1,9 +1,10 @@
 /**
  * Ojo de lince — lab prototype (the owner's idea): an endless, quick memory game. Each round some
- * pixel-art pictures show on a covered board and hide again, the board turns, flips or swaps tiles in
- * front of the player, and they tap where each picture ended up. Rounds keep getting harder until the
- * three lives run out. Without `?seed=` it is today's game, the same for everyone. The rules are in
- * engine.js, the texts in rules.js, the pictures in sprites.js. See docs/games/eagle-eye.md.
+ * pixel-art pictures show on a covered board, some repeated, and hide again; the player taps every
+ * copy of the one picture asked for (one, a pair or a trio) before the time runs out. Rounds keep
+ * getting harder until the three lives run out. Without `?seed=` it is today's game, the same for
+ * everyone. The rules are in engine.js, the texts in rules.js, the pictures in sprites.js.
+ * See docs/games/eagle-eye.md.
  */
 import { el, vibrate, sparkles, confetti } from '../../assets/js/ui.js';
 import { getLang, langToggle, COMMON, SITIO } from '../../assets/js/i18n.js';
@@ -86,60 +87,6 @@ function closeAll(b) {
 const clearPics = b => { for (const t of b.children) setPic(t, null); };
 
 /* ------------------------------------------------------------------ */
-/* The moves, animated                                                 */
-/* ------------------------------------------------------------------ */
-
-/** What each move is called on screen. */
-function moveLabel(m) {
-  if (m.type === 'rotate') return m.turns === 2 ? T.moves.half : m.turns > 0 ? T.moves.right : T.moves.left;
-  if (m.type === 'flip') return m.axis === 'h' ? T.moves.mirror : T.moves.upside;
-  return T.moves[m.type];
-}
-
-/**
- * Plays a move on a covered board. Every cover looks the same, so once the animation ends the board
- * snaps back to rest and nothing seems to change: the pictures moved only in the engine's map.
- */
-async function animateMove(b, size, m) {
-  if (QUIET) return wait(500);
-  const ease = 'cubic-bezier(.55,0,.3,1)';
-  if (m.type === 'rotate') {
-    const deg = 90 * m.turns;
-    await b.animate([{ transform: 'rotate(0)' }, { transform: `rotate(${deg / 2}deg) scale(0.92)` }, { transform: `rotate(${deg}deg)` }],
-      { duration: anim(Math.abs(m.turns) === 2 ? 900 : 700), easing: ease }).finished;
-    return;
-  }
-  if (m.type === 'flip') {
-    const axis = m.axis === 'h' ? 'X' : 'Y';
-    await b.animate([{ transform: 'none' }, { transform: `scale${axis}(0.02)` }, { transform: `scale${axis}(-1)` }],
-      { duration: anim(700), easing: ease }).finished;
-    return;
-  }
-  // Two rows, two columns or two tiles trade places: they lift, glow and cross on opposite arcs
-  const pairs = [];
-  if (m.type === 'swap') pairs.push([m.a, m.b]);
-  else for (let k = 0; k < size; k++) pairs.push(m.type === 'rows' ? [m.a * size + k, m.b * size + k] : [k * size + m.a, k * size + m.b]);
-  const runs = [];
-  for (const [a, c] of pairs) {
-    const ta = tileAt(b, a), tc = tileAt(b, c);
-    const ra = ta.getBoundingClientRect(), rc = tc.getBoundingClientRect();
-    const dx = rc.left - ra.left, dy = rc.top - ra.top;
-    // The arc bends sideways to the path, one tile each way, so the two can be told apart
-    const len = Math.hypot(dx, dy) || 1, bend = ra.width * 0.45;
-    const ox = (-dy / len) * bend, oy = (dx / len) * bend;
-    for (const [t, sx, sy, sign] of [[ta, dx, dy, 1], [tc, -dx, -dy, -1]]) {
-      t.classList.add('moving');
-      runs.push(t.animate([
-        { transform: 'none' },
-        { transform: `translate(${sx / 2 + ox * sign}px, ${sy / 2 + oy * sign}px) scale(1.12)`, offset: 0.5 },
-        { transform: `translate(${sx}px, ${sy}px)` },
-      ], { duration: anim(750), easing: 'ease-in-out' }).finished.then(() => t.classList.remove('moving')));
-    }
-  }
-  await Promise.all(runs);
-}
-
-/* ------------------------------------------------------------------ */
 /* The cover                                                           */
 /* ------------------------------------------------------------------ */
 
@@ -164,25 +111,23 @@ function cover() {
   demo(mini);
 }
 
-/** The cover's board plays by itself: two pictures, covered, a move, and they open where they went. */
+/** The cover's board plays by itself: the pictures show, cover, and the one asked opens with a green ring. */
 function demo(b) {
   const run = ++demoRun;
   const alive = () => run === demoRun && b.isConnected;
-  const r0 = makeRound('cover', 3);
-  b.querySelectorAll('.tile').forEach((t, i) => (r0.start[i] ? openTile(t, r0.start[i], false) : null));
+  const r0 = makeRound('cover', 2);
+  b.querySelectorAll('.tile').forEach((t, i) => (r0.board[i] ? openTile(t, r0.board[i], false) : null));
   if (QUIET) return;
   (async () => {
     for (let k = 0; alive(); k++) {
-      const r = makeRound(`cover-${k % 6}`, 3);
+      const r = makeRound(`cover-${k % 6}`, 1 + (k % 2));
       closeAll(b); await wait(450); clearPics(b);
-      r.start.forEach((s, i) => s && openTile(tileAt(b, i), s, false));
+      r.board.forEach((s, i) => s && openTile(tileAt(b, i), s, false));
       await wait(1500); if (!alive()) return;
-      closeAll(b); await wait(450); if (!alive()) return;
+      closeAll(b); await wait(900); if (!alive()) return;
       clearPics(b);
-      for (const m of r.moves) { await animateMove(b, 3, m); if (!alive()) return; }
-      await wait(300);
-      r.end.forEach((s, i) => { if (s) { openTile(tileAt(b, i), s, false); tileAt(b, i).classList.add('ok'); } });
-      await wait(1600);
+      for (const c of r.ask.cells) { openTile(tileAt(b, c), r.ask.sprite, false); tileAt(b, c).classList.add('ok'); await wait(350); }
+      await wait(1300);
     }
   })();
 }
@@ -208,11 +153,12 @@ function start(seed = SEED_URL || `day:${fechaLocal()}`) {
     bar: el('div', { class: 'bar-ee', 'aria-hidden': 'true' }, el('span')),
     slot: el('div', { class: 'board-slot' }),
   };
-  view.replaceChildren(
+  // The board in the middle of the screen; what to do now goes under it, with the time to look
+  view.replaceChildren(el('div', { class: 'play-ee' },
     el('div', { class: 'head-ee' }, title(true), hud.best),
     el('div', { class: 'hud-ee' }, hud.lives, hud.round),
-    hud.prompt, hud.bar, hud.slot,
-  );
+    hud.slot, hud.bar, hud.prompt,
+  ));
   commentFoot('juego');
   drawLives();
   loop(S.run);
@@ -241,33 +187,24 @@ async function loop(run) {
       const t = ev.target.closest('.tile');
       if (t && !t.disabled && S.answer) S.answer(+t.dataset.i);
     });
-    // 1. A pairs round says so first
-    if (round.pairs) { say(T.pairs, 'big'); SFX.turn(); await wait(900); if (!alive()) return; }
+    // 1. The first pairs round says so first
+    if (round.intro && round.ask.cells.length === 2 && S.g.level === 2) { say(T.pairs, 'big'); SFX.turn(); await wait(900); if (!alive()) return; }
     // 2. The pictures show
     say(T.look);
     SFX.flip();
-    round.start.forEach((s, i) => s && setTimeout(() => openTile(tileAt(b, i), s, false), anim(i * 18)));
-    const fill = hud.bar.firstElementChild;
-    hud.bar.classList.add('on');
-    fill.animate([{ transform: 'scaleX(1)' }, { transform: 'scaleX(0)' }], { duration: round.showMs * SPEED, easing: 'linear', fill: 'forwards' });
+    round.board.forEach((s, i) => s && setTimeout(() => openTile(tileAt(b, i), s, false), anim(i * 12)));
+    timeBar(round.showMs, 'look');
     await wait(round.showMs); if (!alive()) return;
-    hud.bar.classList.remove('on');
-    // 3. They hide, and the board moves
+    // 3. They hide
     say(T.hide);
     closeAll(b);
     await wait(380); if (!alive()) return;
     clearPics(b);
-    for (const m of round.moves) {
-      say(moveLabel(m), 'move'); SFX.pass();
-      await wait(250); if (!alive()) return;
-      await animateMove(b, round.size, m); if (!alive()) return;
-      await wait(180);
-    }
     // 4. The player finds them
     const cleared = await ask(b, round, alive);
     if (!alive()) return;
     if (cleared) {
-      S.g.found += round.ask.length;
+      S.g.found++;
       say(T.well[Math.floor(Math.random() * T.well.length)], 'well');
       SFX.reveal(); vibrate(20);
       b.classList.add('cleared');
@@ -280,41 +217,52 @@ async function loop(run) {
     if (life) { await wait(500); say(T.lifeBack, 'well'); SFX.turn(); drawLives(); }
     if (over) { await wait(900); return result(); }
     if (!cleared) { await wait(400); say(plural(T.lives, S.g.lives), 'bad'); }
-    await wait(cleared ? (life ? 1100 : 650) : 1300);
+    // A clear stays on screen a while, the pictures found still open, before the next board (the owner's request)
+    await wait(cleared ? (life ? 1800 : 1500) : 1300);
   }
 }
 
-/** Asks for each picture in turn; resolves true once all are found, false on the first miss. */
+/** The bar under the board: the time left to look, or to answer. */
+function timeBar(ms, kind) {
+  const fill = hud.bar.firstElementChild;
+  hud.bar.className = `bar-ee on ${kind}`;
+  fill.getAnimations().forEach(x => x.cancel());
+  fill.animate([{ transform: 'scaleX(1)' }, { transform: 'scaleX(0)' }], { duration: ms * SPEED, easing: 'linear', fill: 'forwards' });
+}
+const stopBar = () => { hud.bar.className = 'bar-ee'; hud.bar.firstElementChild.getAnimations().forEach(x => x.cancel()); };
+
+/**
+ * Asks for the picture: every copy of it must be found before the time runs out. Resolves true once
+ * all are found, false on a wrong tile or when the time is up (then where they were opens).
+ */
 function ask(b, round, alive) {
   for (const t of b.children) t.disabled = false;
-  const prompt = () => {
-    const item = round.ask[S.play.current];
-    say([el('span', {}, round.pairs ? T.askPair : T.ask), picture(item.sprite)], 'ask');
-  };
-  prompt();
+  const { sprite, cells } = round.ask;
+  const words = [T.ask, T.askPair, T.askTrio][cells.length - 1];
+  say([el('span', {}, words), picture(sprite)], 'ask');
+  timeBar(round.answerMs, 'answer');
   return new Promise(resolve => {
+    const fail = (tile, text) => {
+      S.answer = null; clearTimeout(clock); stopBar();
+      for (const x of b.children) x.disabled = true;
+      tile?.classList.add('bad');
+      SFX.error(); vibrate([40, 30, 40]);
+      say(text, 'bad');
+      // Where they were: the copies not found open with a yellow ring
+      setTimeout(() => cells.forEach(c => { if (!S.play.found.includes(c)) { openTile(tileAt(b, c), sprite); tileAt(b, c).classList.add('answer'); } }), anim(350));
+      setTimeout(() => resolve(false), anim(1500));
+    };
+    const clock = setTimeout(() => { if (alive() && S.answer) fail(null, T.timeUp); }, round.answerMs * SPEED);
     S.answer = i => {
-      if (!alive()) { S.answer = null; return; }
+      if (!alive()) { S.answer = null; clearTimeout(clock); return; }
       const t = tileAt(b, i);
       const res = tap(S.play, i);
       if (res === 'again') return;
-      openTile(t, round.end[i]);
-      if (res === 'miss') {
-        S.answer = null;
-        for (const x of b.children) x.disabled = true;
-        t.classList.add('bad');
-        SFX.error(); vibrate([40, 30, 40]);
-        say(T.miss, 'bad');
-        // Where it was: the picture asked opens with a yellow ring
-        const item = round.ask[S.play.current];
-        setTimeout(() => item.cells.forEach(c => { if (!S.play.found.includes(c)) { openTile(tileAt(b, c), item.sprite); tileAt(b, c).classList.add('answer'); } }), anim(350));
-        setTimeout(() => resolve(false), anim(1500));
-        return;
-      }
+      openTile(t, round.board[i]);
+      if (res === 'miss') return fail(t, T.miss);
       t.classList.add('ok'); t.disabled = true;
       SFX.tap(); vibrate(10);
-      if (res === 'next') prompt();
-      if (res === 'clear') { S.answer = null; for (const x of b.children) x.disabled = true; setTimeout(() => resolve(true), anim(250)); }
+      if (res === 'clear') { S.answer = null; clearTimeout(clock); stopBar(); for (const x of b.children) x.disabled = true; setTimeout(() => resolve(true), anim(250)); }
     };
   });
 }

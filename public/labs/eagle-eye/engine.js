@@ -1,16 +1,17 @@
 /**
- * Ojo de lince — the rules (lab prototype, no DOM). An endless memory game: each round a few
- * pixel-art pictures show on a covered board, they hide again, the board is turned around (rotated,
- * mirrored, rows or tiles swapped) and the player taps where each picture ended up. Every round is a
- * little harder (a bigger board, more pictures, pairs, decoys, more moves) until the lives run out.
- * Everything comes from a seed, so the same seed plays the same game. See docs/games/eagle-eye.md.
+ * Ojo de lince — the rules (lab prototype, no DOM). An endless memory game: each round some
+ * pixel-art pictures show on a covered board, some of them repeated (a pair, a trio), they hide
+ * again, and the player taps every copy of the one picture asked for before the time runs out. The
+ * board grows up to 6×6, more pictures show and there is less time to look and to answer, until the
+ * lives run out. Everything comes from a seed, so the same seed plays the same game.
+ * See docs/games/eagle-eye.md.
  */
 import { SPRITE_NAMES } from './sprites.js';
 
 export const LIVES = 3;
 /** Rounds cleared in a row without a miss that give a lost life back. */
 export const LIFE_EVERY = 5;
-export const MAX_SIZE = 5;
+export const MAX_SIZE = 6;
 
 /* ------------------------------------------------------------------ */
 /* The seed                                                            */
@@ -43,85 +44,38 @@ function shuffle(r, list) {
 /* ------------------------------------------------------------------ */
 
 /**
- * The difficulty of level `n` (1, 2, 3…, endless): the board's side, how many pictures to find (or
- * pairs), the decoys shown but never asked, the moves made to the board and the moves allowed, and
- * how long the pictures stay up.
+ * The first levels are the same for everyone and teach the game (the owner's request): the groups on
+ * the board, how many copies of each picture, and the first one is the one asked.
  */
-export function level(n) {
-  const size = n <= 3 ? 3 : n <= 7 ? 4 : MAX_SIZE;
-  const pairs = n >= 4 && n % 3 === 1;
-  const ask = pairs ? Math.min(4, 2 + Math.floor((n - 4) / 6)) : Math.min(6, 2 + Math.floor((n - 1) / 2));
-  const decoys = n >= 6 ? Math.min(3, Math.floor((n - 3) / 3)) : 0;
-  const moves = n < 3 ? 0 : n < 6 ? 1 : n < 11 ? 2 : n < 16 ? 3 : 4;
-  const kinds = ['rotate'];
-  if (n >= 4) kinds.push('swap');
-  if (n >= 5) kinds.push('flip');
-  if (n >= 8) kinds.push('rows');
-  const shown = ask * (pairs ? 2 : 1) + decoys;
-  // Quick (the owner's request): a bit of time per picture, and less each level, down to a floor
-  const showMs = Math.round((900 + 300 * shown) * Math.max(0.6, 1 - 0.03 * (n - 1)));
-  return { size, pairs, ask, decoys, moves, kinds, showMs };
-}
+export const INTRO = [
+  [1, 1],        // 3×3: two pictures, find one
+  [2, 2],        // 3×3: two pairs, find one pair
+  [1, 1, 1],     // 4×4: three pictures
+  [2, 2, 1],     // 4×4: two pairs and one picture, find a pair
+];
+/** The tiles with a picture, at most, as a share of the board. */
+const FILL = 0.5;
 
-/* ------------------------------------------------------------------ */
-/* The moves                                                           */
-/* ------------------------------------------------------------------ */
+/** The board's side for level `n`: it grows fast, 3×3 → 6×6. */
+export const sizeOf = n => (n <= 2 ? 3 : n <= 5 ? 4 : n <= 8 ? 5 : MAX_SIZE);
 
 /**
- * Where the tile at index `i` of a `size`×`size` board goes after a move:
- * - `{ type: 'rotate', turns }`: a quarter turn clockwise per turn (−1 is counter-clockwise);
- * - `{ type: 'flip', axis: 'h' | 'v' }`: a mirror, left–right or top–bottom;
- * - `{ type: 'rows' | 'cols', a, b }`: two rows (or columns) trade places;
- * - `{ type: 'swap', a, b }`: two tiles trade places.
+ * The difficulty of level `n` (1, 2, 3…, endless): the board's side, the tiles with a picture, the
+ * biggest group (a trio from the 5×5 on), how long the pictures stay up and how long there is to
+ * find each copy. After the INTRO the groups are drawn at random, mixed (the owner's request), and
+ * every level brings a tile more and a little less time, down to a floor.
  */
-export function move(size, i, m) {
-  let r = Math.floor(i / size), c = i % size;
-  const last = size - 1;
-  switch (m.type) {
-    case 'rotate': {
-      const t = ((m.turns % 4) + 4) % 4;
-      for (let k = 0; k < t; k++) [r, c] = [c, last - r];
-      break;
-    }
-    case 'flip': if (m.axis === 'h') c = last - c; else r = last - r; break;
-    case 'rows': if (r === m.a) r = m.b; else if (r === m.b) r = m.a; break;
-    case 'cols': if (c === m.a) c = m.b; else if (c === m.b) c = m.a; break;
-    case 'swap': return i === m.a ? m.b : i === m.b ? m.a : i;
-    default: break;
-  }
-  return r * size + c;
-}
-/** A whole board (index → picture or null) after a move. */
-export function moveBoard(size, cells, m) {
-  const out = new Array(cells.length).fill(null);
-  cells.forEach((v, i) => { out[move(size, i, m)] = v; });
-  return out;
-}
-
-/** A move of the allowed kinds that changes where at least one picture is (so it is never wasted). */
-function randomMove(r, size, cells, kinds) {
-  const full = cells.map((v, i) => (v === null ? -1 : i)).filter(i => i >= 0);
-  for (let tries = 0; tries < 40; tries++) {
-    const kind = pick(r, kinds);
-    let m;
-    if (kind === 'rotate') m = { type: 'rotate', turns: pick(r, [1, -1, 1, -1, 2]) };
-    else if (kind === 'flip') m = { type: 'flip', axis: pick(r, ['h', 'v']) };
-    else if (kind === 'rows') {
-      const type = pick(r, ['rows', 'cols']);
-      const line = i => (type === 'rows' ? Math.floor(i / size) : i % size);
-      const a = line(pick(r, full));
-      let b = Math.floor(r() * (size - 1)); if (b >= a) b++;
-      m = { type, a: Math.min(a, b), b: Math.max(a, b) };
-    } else {
-      // A picture trades places with another tile (empty or not): the shell game
-      const a = pick(r, full);
-      let b = Math.floor(r() * (size * size - 1)); if (b >= a) b++;
-      m = { type: 'swap', a: Math.min(a, b), b: Math.max(a, b) };
-    }
-    const after = moveBoard(size, cells, m);
-    if (after.some((v, i) => v !== cells[i])) return m;
-  }
-  return { type: 'rotate', turns: 1 };
+export function level(n) {
+  const size = sizeOf(n);
+  const intro = INTRO[n - 1] || null;
+  const tiles = intro ? intro.reduce((a, b) => a + b, 0) : Math.min(Math.floor(size * size * FILL), 2 + n);
+  const maxGroup = size >= 5 ? 3 : 2;
+  // Faster every level after the intro, down to 55 %
+  const speed = Math.max(0.55, 1 - 0.035 * Math.max(0, n - INTRO.length));
+  // The 3×3 keeps the most time to look (the owner's request)
+  const showMs = size === 3 ? 2600 : Math.round(Math.max(1500, (1400 + 220 * tiles) * speed));
+  const tapMs = Math.round(Math.max(1400, 4500 * speed));
+  return { size, intro, tiles, maxGroup, showMs, tapMs };
 }
 
 /* ------------------------------------------------------------------ */
@@ -129,59 +83,57 @@ function randomMove(r, size, cells, kinds) {
 /* ------------------------------------------------------------------ */
 
 /**
- * The round of level `n` for a seed: `start` is the board as it is shown (index → picture name or
- * null), `moves` what is done to it once covered, `end` the board after them, and `ask` the pictures
- * to find in the order they are asked, each with the tiles where it ended up (two for a pair).
+ * The round of level `n` for a seed: `groups` are the pictures on the board with how many copies
+ * each, `board` the board (index → picture name or null), `ask` the picture to find with the tiles
+ * where its copies are, and `answerMs` the time to find them all.
  */
 export function makeRound(seed, n) {
   const L = level(n);
   const r = rng(`${seed}|${n}`);
-  const cellsN = L.size * L.size;
-  const names = shuffle(r, SPRITE_NAMES);
-  const asked = names.slice(0, L.ask);
-  const decoys = names.slice(L.ask, L.ask + L.decoys);
-  const pieces = [...asked.flatMap(s => (L.pairs ? [s, s] : [s])), ...decoys];
-  const spots = shuffle(r, [...Array(cellsN).keys()]).slice(0, pieces.length);
-  const start = new Array(cellsN).fill(null);
-  pieces.forEach((s, k) => { start[spots[k]] = s; });
-  const moves = [];
-  let end = start, before = null;
-  const same = (a, b) => a.every((v, i) => v === b[i]);
-  for (let k = 0; k < L.moves; k++) {
-    // Never a move that undoes the one before (a turn and its opposite, the same mirror twice)
-    let m, after;
-    for (let tries = 0; tries < 12; tries++) {
-      m = randomMove(r, L.size, end, L.kinds);
-      after = moveBoard(L.size, end, m);
-      if (!before || !same(after, before)) break;
+  let counts, asked = 0;
+  if (L.intro) counts = L.intro;
+  else {
+    // Mixed groups: singles, pairs and (on the big boards) trios, filling the tiles
+    const sizes = L.maxGroup === 3 ? [1, 1, 2, 2, 3, 3] : [1, 1, 2, 2];
+    counts = [];
+    for (let left = L.tiles; left > 0;) {
+      const c = pick(r, sizes.filter(x => x <= left));
+      counts.push(c); left -= c;
     }
-    moves.push(m);
-    before = end; end = after;
+    // What is asked is mixed too: a single, a pair or a trio, whatever the board holds
+    const kinds = [...new Set(counts)];
+    const want = pick(r, kinds);
+    asked = pick(r, counts.map((c, i) => (c === want ? i : -1)).filter(i => i >= 0));
   }
-  const ask = shuffle(r, asked).map(sprite => ({ sprite, cells: end.flatMap((v, i) => (v === sprite ? [i] : [])) }));
-  return { level: n, ...L, start, moves, end, ask };
+  const names = shuffle(r, SPRITE_NAMES);
+  const groups = counts.map((count, i) => ({ sprite: names[i], count }));
+  const pieces = groups.flatMap(g => Array(g.count).fill(g.sprite));
+  const cellsN = L.size * L.size;
+  const spots = shuffle(r, [...Array(cellsN).keys()]).slice(0, pieces.length);
+  const board = new Array(cellsN).fill(null);
+  pieces.forEach((s, k) => { board[spots[k]] = s; });
+  const sprite = groups[asked].sprite;
+  const ask = { sprite, cells: board.flatMap((v, i) => (v === sprite ? [i] : [])) };
+  return { level: n, ...L, groups, board, ask, answerMs: L.tapMs * ask.cells.length };
 }
 
 /* ------------------------------------------------------------------ */
 /* Playing a round                                                     */
 /* ------------------------------------------------------------------ */
 
-/** The player's progress in a round: which picture is asked now and the tiles already found. */
-export const newPlay = round => ({ round, current: 0, found: [] });
+/** The player's progress in a round: the tiles already found. */
+export const newPlay = round => ({ round, found: [] });
 
 /**
- * A tap on tile `i`: `'again'` (already found, nothing happens), `'hit'` (one of a pair found, the
- * other is still missing), `'next'` (that picture is done, the next one is asked), `'clear'` (the
- * round is done) or `'miss'`.
+ * A tap on tile `i`: `'again'` (already found, nothing happens), `'hit'` (one copy found, others are
+ * still missing), `'clear'` (every copy found: the round is done) or `'miss'`.
  */
 export function tap(play, i) {
   if (play.found.includes(i)) return 'again';
-  const item = play.round.ask[play.current];
-  if (!item || !item.cells.includes(i)) return 'miss';
+  const { cells } = play.round.ask;
+  if (!cells.includes(i)) return 'miss';
   play.found.push(i);
-  if (!item.cells.every(c => play.found.includes(c))) return 'hit';
-  play.current++;
-  return play.current >= play.round.ask.length ? 'clear' : 'next';
+  return cells.every(c => play.found.includes(c)) ? 'clear' : 'hit';
 }
 
 /* ------------------------------------------------------------------ */
@@ -196,7 +148,8 @@ export const currentRound = g => makeRound(`${g.seed}|${g.tries}`, g.level);
 
 /**
  * The end of a round. Cleared: one more point, the next level and, every LIFE_EVERY in a row, a lost
- * life back (`life: true`). Missed: one life less, the same level again. `over` once no life is left.
+ * life back (`life: true`). Missed (a wrong tile or the time ran out): one life less, the same level
+ * again. `over` once no life is left.
  */
 export function endRound(g, cleared) {
   g.tries++;

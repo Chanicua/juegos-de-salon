@@ -15,11 +15,13 @@
 .demo { width: min(200px, 56vw); margin: 4px auto 0; }
 
 /* The board: square, its tiles chunky pixel blocks */
-.board-slot { display: grid; place-items: center; padding: 6px 0 24px; }
+/* The game screen fills the height: heading on top, the board centred in what is left, the prompt under it */
+.play-ee { display: flex; flex-direction: column; gap: 8px; min-height: calc(100svh - 150px); }
+.board-slot { flex: 1; display: grid; place-items: center; padding: 8px 0; }
 .board {
   --gap: clamp(4px, 1.6vw, 8px);
   display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: var(--gap);
-  width: min(100%, 420px, calc(100svh - 300px)); min-width: 240px; aspect-ratio: 1; margin: 0 auto;
+  width: min(100%, 420px, calc(100svh - 320px)); min-width: 240px; aspect-ratio: 1; margin: 0 auto;
   touch-action: manipulation; -webkit-user-select: none; user-select: none;
 }
 .board.mini { width: 100%; min-width: 0; --gap: 5px; }
@@ -50,8 +52,6 @@
 .tile.bad .pic { border-color: #ff4d6d; box-shadow: 0 0 16px rgba(255, 77, 109, 0.6); }
 .tile.bad { animation: ee-shake 0.4s ease-in-out; }
 .tile.answer .pic { border-color: var(--yellow); box-shadow: 0 0 18px rgba(255, 210, 63, 0.7); animation: ee-ring 0.9s ease-in-out 2; }
-.tile.moving { z-index: 2; }
-.tile.moving .cover { box-shadow: 0 0 0 3px var(--yellow), 0 0 22px rgba(255, 210, 63, 0.7), inset 0 4px 0 rgba(255,255,255,0.28), inset 0 -5px 0 rgba(0,0,0,0.35); }
 .board.cleared .tile.ok .pic { animation: ee-jump 0.45s ease-out; }
 @keyframes ee-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 @keyframes ee-ring { 50% { box-shadow: 0 0 4px rgba(255, 210, 63, 0.3); } }
@@ -71,12 +71,11 @@
 .round-ee.bump { animation: pop 0.35s ease-out; }
 /* What to do now: always the same height, so the board does not jump */
 .prompt-ee {
-  min-height: 3.2rem; display: flex; align-items: center; justify-content: center; gap: 10px; text-align: center;
+  min-height: 3.6rem; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; text-align: center;
   font: 800 1.15rem var(--font-body); color: #fff;
 }
 .prompt-ee.big, .prompt-ee.well { font: 1.9rem var(--font-display); letter-spacing: 0.05em; color: var(--yellow); animation: pop 0.35s ease-out; }
 .prompt-ee.well { color: var(--lime); }
-.prompt-ee.move { font: 1.6rem var(--font-display); letter-spacing: 0.05em; color: var(--cyan); animation: pop 0.3s ease-out; }
 .prompt-ee.bad { color: #ff8fa3; }
 .prompt-ee.ask { font-size: 1.25rem; }
 .pic-icon { width: 3rem; height: 3rem; display: grid; place-items: center; border-radius: 10px; background: #241447; border: 2px solid var(--yellow); animation: pop 0.3s ease-out; }
@@ -85,6 +84,8 @@
 .bar-ee { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; opacity: 0; transition: opacity 0.2s; }
 .bar-ee.on { opacity: 1; }
 .bar-ee span { display: block; height: 100%; transform-origin: left; background: linear-gradient(90deg, var(--lime), var(--yellow)); }
+/* The time to answer: it runs from cyan into pink */
+.bar-ee.answer span { background: linear-gradient(90deg, var(--pink), var(--cyan)); }
 
 /* The result */
 .result-ee { text-align: center; display: grid; gap: 10px; }
