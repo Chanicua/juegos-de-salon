@@ -13,7 +13,7 @@ const ES = {
   today: 'La partida de hoy es igual para todos.',
   steps: [
     ['👀', 'Mira los dibujos antes de que se tapen.'],
-    ['👆', 'Toca el que te piden: uno, un par o un trío.'],
+    ['👆', 'Toca el que te piden: uno, par o trío.'],
     ['⏱️', `Cada ronda es más rápida. Tienes ${LIVES} vidas.`],
   ],
   play: '👀 Jugar',
