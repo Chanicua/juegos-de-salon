@@ -33,9 +33,11 @@ mixed groups and asks after the first standard rounds.
 
 ## Cover
 
-The title with a 👀 that blinks, the tagline, the language flags and a small 3×3 board that plays by
+The title with a 👀 that blinks and the tagline («Mira, recuerda y encuentra.»); under them, once there
+is one, this phone's best shown like a result, a yellow pill «🏆 Tu récord · 7 rondas» (the owner
+asked for it up top, not under the steps); the language flags and a small 3×3 board that plays by
 itself (the pictures show, cover, and the one asked opens with a green ring; still with reduced
-motion). Then "👀 Jugar" and the three steps (after the button, U-39), today's note and this phone's best.
+motion). Then "👀 Jugar" and the three short steps (after the button, U-39) and today's note.
 
 ## How it is played
 

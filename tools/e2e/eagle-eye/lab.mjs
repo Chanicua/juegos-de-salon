@@ -21,7 +21,7 @@ ok(await ev(`document.querySelector('#activos #seccion-ojo-de-lince #btn-ojo-de-
 await b.go(`${SITE}/labs/eagle-eye/?test`, 1200);
 ok(await waitFor(`!!document.getElementById('btn-jugar')`), 'the cover has Jugar');
 ok(await ev(`document.querySelectorAll('.steps li').length`) === 3, 'three steps');
-ok(/misma para todos/.test(await ev(`document.body.textContent`)), 'without a seed it is today\'s game');
+ok(/igual para todos/.test(await ev(`document.body.textContent`)), 'without a seed it is today\'s game');
 ok(await waitFor(`document.querySelectorAll('.demo .tile.open').length >= 1`, 6000), 'the cover board shows pictures by itself');
 ok(await ev(`document.documentElement.scrollWidth <= innerWidth`), 'no sideways scroll at 375 px');
 await b.shot('01-cover');

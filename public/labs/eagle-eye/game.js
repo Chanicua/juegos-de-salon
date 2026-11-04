@@ -98,14 +98,16 @@ function cover() {
     el('div', { class: 'cover-ee' },
       title(),
       el('p', { class: 'lead', style: 'margin:0' }, T.tagline),
+      // This phone's best, up top and shown like a result (the owner's request)
+      S.best ? el('div', { class: 'best-cover', id: 'mejor-portada' },
+        el('span', { class: 'best-label' }, `🏆 ${T.bestLabel}`), el('span', { class: 'best-value' }, plural(T.score, S.best))) : null,
       el('div', { id: 'lang-slot' }, langToggle()),
       el('div', { class: 'demo', 'aria-hidden': 'true' }, mini)),
     el('button', { type: 'button', class: 'btn btn--yellow', id: 'btn-jugar', onClick: () => { SFX.tap(); start(); } }, T.play),
     // The steps go after Play, so it is seen without scrolling on a small phone (U-39)
     el('div', { class: 'panel' },
       el('ol', { class: 'steps' }, ...T.steps.map(([ico, x]) => el('li', {}, el('span', { class: 'step-ico', 'aria-hidden': 'true' }, ico), el('span', {}, x)))),
-      SEED_URL ? null : el('p', { class: 'muted today-note' }, `📅 ${T.today}`),
-      S.best ? el('p', { class: 'best-cover' }, fmt(T.best, { n: S.best })) : null),
+      SEED_URL ? null : el('p', { class: 'muted today-note' }, `📅 ${T.today}`)),
   );
   commentFoot('portada');
   demo(mini);
