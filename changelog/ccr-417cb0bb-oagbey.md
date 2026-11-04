@@ -1,0 +1,3 @@
+level: minor
+
+- **📞 Duende, a new lab game** at `/labs/phone-run/`, inspired by the nineties TV games played by calling in and pressing the phone's keys (the owner's request). It opens on an old TV with the gnome in big pixels, the picture glitches and he comes out as the game room's gnome on the cover. He runs down a three-lane track and is moved with a phone keypad drawn under it (4 ◀, 6 ▶, 2 jump, 8 duck), a swipe or the keyboard. Each stretch is a checkpoint, faster, with a new obstacle (rocks, logs, branches, carts) and a new landscape; a hit costs one of three lives and starts the stretch again. Spanish only for now; our own gnome, name and drawings.

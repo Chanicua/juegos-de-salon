@@ -627,6 +627,11 @@ export const PATHS = {
     intro: [],
     game: [START, `1`, `1`, `1`, `1`, `1`, `1`],
   },
+  // Duende (lab): the cover without the old TV, and the track just started
+  'labs/phone-run': {
+    intro: [`location.search = '?intro=0&seed=e2e'`, `1`],
+    game: [`location.search = '?intro=0&seed=e2e'`, `1`, `document.getElementById('btn-jugar').click()`, `1`, `1`],
+  },
   'labs/dominorama': {
     intro: [],
     game: [START, `1`, `1`, `1`, `1`, `1`, `1`],
