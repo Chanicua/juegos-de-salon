@@ -1,0 +1,3 @@
+level: minor
+
+- **👀 Ojo de lince, a new game in the lab** (`/labs/eagle-eye/`, the owner's idea): an endless, quick memory game in pixel art. A few pictures show on a covered board and hide again; then the board turns, mirrors, swaps two rows or columns or plays the shell game with two tiles, and you tap where each picture ended up. Every round is harder (a 3×3 board up to 5×5, more pictures, pairs rounds, decoys that are never asked, more moves, less time to look) until the three lives run out; five rounds in a row without a miss give a life back. In Spanish, English and Portuguese; today's game is the same for everyone and Play again draws another. Its card is in the lab's Games being tried, and `tools/e2e/eagle-eye/lab.mjs` plays it end to end.

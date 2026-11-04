@@ -627,6 +627,10 @@ export const PATHS = {
     intro: [],
     game: [START, `1`, `1`, `1`, `1`, `1`, `1`],
   },
+  'labs/eagle-eye': {
+    intro: [],
+    game: [`document.getElementById('btn-jugar').click(); 1`, `1`, `1`, `1`],
+  },
   'labs/dominorama': {
     intro: [],
     game: [START, `1`, `1`, `1`, `1`, `1`, `1`],
