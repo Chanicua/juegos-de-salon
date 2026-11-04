@@ -1,0 +1,94 @@
+/* Pulso (lab). What is shared lives in assets/css/base.css. */
+
+/* The page's background: a stage at night, with red and purple lights */
+body {
+  --bg1: #14051f; --bg2: #250a2e; --bg3: #0c0618;
+  --fondo:
+    radial-gradient(900px 520px at 15% -10%, rgba(255, 46, 136, 0.3), transparent 60%),
+    radial-gradient(900px 520px at 100% 10%, rgba(120, 60, 255, 0.25), transparent 60%),
+    radial-gradient(700px 500px at 50% 120%, rgba(255, 138, 61, 0.18), transparent 60%),
+    linear-gradient(160deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+}
+
+.portada { text-align: center; display: grid; gap: 10px; padding-top: 8px; }
+.titulo-pulso { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0; text-align: center; }
+.titulo-pulso .rainbow { padding: 0.2em 0.12em 0 0; margin: -0.2em -0.12em 0 0; }
+.titulo-pulso .guitarra { font-size: 2.3rem; display: inline-block; transform-origin: 50% 80%; animation: pulso-rock 0.9s ease-in-out infinite; }
+.titulo-pulso.chico .display { font-size: 1.6rem; }
+.titulo-pulso.chico .guitarra { font-size: 1.5rem; }
+@keyframes pulso-rock { 0%, 100% { transform: rotate(-12deg); } 50% { transform: rotate(10deg) scale(1.08); } }
+.pasos { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; text-align: left; }
+.pasos li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; }
+.paso-ico { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 1.1rem; background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); }
+.demo-pulso { display: block; width: 100%; max-width: 300px; height: 190px; margin: 0 auto; border-radius: 16px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.3)); border: 1px solid var(--glass-border); }
+.record { font-weight: 800; color: var(--yellow); }
+.record.nuevo { font: 1.4rem var(--font-display); letter-spacing: 0.05em; animation: pop 0.5s ease-out 0.4s both; }
+.ajuste-chip { margin-left: 8px; font-size: 0.8rem; opacity: 0.75; }
+
+/* The game: over the whole page, nothing scrolls and a long press selects nothing */
+body.jugando { overflow: hidden; }
+.pulso-juego { position: fixed; inset: 0; z-index: 50; display: grid; grid-template-rows: auto 1fr;
+  background: var(--fondo), var(--bg1); background-attachment: fixed;
+  touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+.pulso-juego.temblor { animation: pulso-temblor 0.18s; }
+@keyframes pulso-temblor { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.escenario { width: 100%; height: 100%; display: block; touch-action: none; }
+
+.hud { display: grid; gap: 6px; padding: 10px 16px 4px; max-width: 520px; width: 100%; margin: 0 auto; box-sizing: border-box; }
+.hud-fila { display: grid; grid-template-columns: 1fr auto 44px; align-items: center; gap: 10px; }
+.hud-pts { font: 900 1.9rem/1 var(--font-num); font-variant-numeric: tabular-nums; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,0.4); }
+.hud-sub { display: flex; gap: 8px; align-items: baseline; min-height: 1.2em; }
+.hud-multi { font: 1.2rem var(--font-display); letter-spacing: 0.05em; color: var(--muted); }
+.hud-multi[data-m="2"] { color: var(--cyan); }
+.hud-multi[data-m="3"] { color: var(--yellow); }
+.hud-multi[data-m="4"] { color: var(--pink); text-shadow: 0 0 12px rgba(255, 46, 136, 0.7); }
+.hud-racha { font-size: 0.85rem; font-weight: 800; color: var(--muted); }
+.hud-parte { font: 1.1rem var(--font-display); letter-spacing: 0.05em; color: var(--muted); }
+.hud-parte.sube { animation: pulso-sube 0.8s ease-out; }
+@keyframes pulso-sube { 0% { transform: scale(1.6); color: var(--yellow); } 100% { transform: none; } }
+.hud-pausa { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--glass-border); background: rgba(255,255,255,0.08); color: #fff; font-size: 1.1rem; cursor: pointer; }
+/* The energy: green while it lasts, red and blinking when it is about to go out */
+.hud-energia { height: 10px; border-radius: 6px; background: rgba(255,255,255,0.1); overflow: hidden; }
+.hud-energia-barra { height: 100%; width: 60%; border-radius: 6px; background: linear-gradient(90deg, var(--lime), var(--cyan)); transition: width 0.2s; }
+.hud-energia-barra.baja { background: linear-gradient(90deg, #ff4d4d, #ff8a3d); animation: pulso-baja 0.5s ease-in-out infinite; }
+@keyframes pulso-baja { 50% { opacity: 0.45; } }
+.hud-avance { height: 3px; border-radius: 2px; background: rgba(255,255,255,0.08); overflow: hidden; }
+.hud-avance-barra { height: 100%; width: 0; background: rgba(255,255,255,0.5); }
+
+.pausa { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(8, 3, 20, 0.72); padding: 16px; }
+.pausa-caja { display: grid; gap: 12px; text-align: center; width: min(100%, 340px); }
+.pausa-caja h2 { margin: 0; font-size: 2rem; }
+#btn-terminar.armado { color: #ff8a8a; border-color: #ff8a8a; }
+
+.fin-grande { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; text-align: center; padding: 16px;
+  font: clamp(2.4rem, 13vw, 4rem) var(--font-display); letter-spacing: 0.04em; color: var(--yellow);
+  text-shadow: 0 4px 0 rgba(0,0,0,0.4), 0 0 24px rgba(255, 210, 63, 0.5); animation: pulso-fin 0.6s cubic-bezier(.3,1.6,.6,1); }
+.fin-grande.apagon { color: #fff; text-shadow: 0 0 24px rgba(255,255,255,0.4); }
+@keyframes pulso-fin { from { transform: scale(0.3); opacity: 0; } to { transform: none; opacity: 1; } }
+/* The power going out: the stage goes dark */
+.pulso-juego.apagado .escenario, .pulso-juego.apagado .hud { animation: pulso-apaga 1.2s forwards; }
+@keyframes pulso-apaga { 0% { opacity: 1; } 15% { opacity: 0.2; } 25% { opacity: 0.8; } 40% { opacity: 0.1; } 100% { opacity: 0.08; } }
+
+/* Tuning: a big pad that beats with the clicks */
+.ajuste { text-align: left; }
+.pad-ajuste { --latido: 0; align-self: center; margin: 0 auto; width: 150px; height: 150px; border-radius: 50%; font-size: 3rem; cursor: pointer;
+  border: 5px solid var(--yellow); color: #fff; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+  background: rgba(255, 210, 63, calc(0.1 + 0.4 * var(--latido))); transform: scale(calc(1 + 0.08 * var(--latido)));
+  box-shadow: 0 0 calc(30px * var(--latido)) rgba(255, 210, 63, 0.7); }
+.pad-ajuste:disabled { opacity: 0.45; cursor: default; }
+.pad-ajuste.late { animation: pulso-toque 0.15s; }
+@keyframes pulso-toque { 50% { border-color: #fff; } }
+
+.resultado { text-align: center; display: grid; gap: 10px; --gap-contenedor: 10px; }
+.resultado .score-big { font: 900 clamp(2.6rem, 14vw, 3.6rem)/1.1 var(--font-num); font-variant-numeric: tabular-nums; color: var(--yellow); text-shadow: 0 4px 0 rgba(0,0,0,0.35); }
+.sello-pulso { justify-self: center; margin: 0; font: 1.3rem var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--lime);
+  padding: 2px 12px; border: 3px solid currentColor; border-radius: 10px; transform: rotate(-5deg); animation: pop 0.5s ease-out 0.3s both; }
+.sello-pulso.mal { color: #ff8a8a; }
+.tarjeta-pulso { margin: 0; font-size: 1.4rem; letter-spacing: 0.1em; }
+.resultado .comentario { text-align: left; }
+.divisor { width: 100%; border: 0; height: 2px; margin: 18px 0 6px; border-radius: 2px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45) 15%, rgba(255, 255, 255, 0.45) 85%, transparent); }
+.desglose { text-align: left; margin: 0 auto; padding-left: 1.2em; }
+.link-btn { background: none; border: 0; color: var(--muted); font: 700 0.95rem var(--font-body); text-decoration: underline; cursor: pointer; min-height: 44px; margin: 0 auto; display: block; }
+.pie { display: grid; justify-items: center; margin-top: 8px; }
