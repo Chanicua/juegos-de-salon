@@ -1,10 +1,10 @@
 /**
- * Ojo de lince — lab prototype (the owner's idea): an endless, quick memory game. Each round some
+ * Memorice — lab prototype (the owner's idea): an endless, quick memory game. Each round some
  * pixel-art pictures show on a covered board, some repeated, and hide again; the player taps every
  * copy of the one picture asked for (one, a pair or a trio) before the time runs out. Rounds keep
  * getting harder until the three lives run out. Without `?seed=` it is today's game, the same for
  * everyone. The rules are in engine.js, the texts in rules.js, the pictures in sprites.js.
- * See docs/games/eagle-eye.md.
+ * See docs/games/memory.md.
  */
 import { el, vibrate, sparkles, confetti } from '../../assets/js/ui.js';
 import { getLang, langToggle, COMMON, SITIO } from '../../assets/js/i18n.js';
@@ -29,7 +29,7 @@ const params = new URLSearchParams(location.search);
 const SEED_URL = (params.get('seed') || '').trim();
 // `?test` runs every wait four times faster, for the end-to-end script
 const SPEED = params.has('test') ? 0.25 : 1;
-const BEST_KEY = 'juegos-de-salon:eagle-eye-best';
+const BEST_KEY = 'juegos-de-salon:memory-best';
 
 const fmt = (s, o = {}) => String(s).replace(/\{(\w+)\}/g, (_, k) => (o[k] ?? ''));
 const plural = (pair, n) => fmt(pair[n === 1 ? 0 : 1], { n });
@@ -63,7 +63,7 @@ const context = screen => ({
 
 /** A covered board of `size`×`size` tiles; each tile has a cover and, on its back, a picture. */
 function board(size, { mini = false } = {}) {
-  const b = el('div', { class: `board${mini ? ' mini' : ''}`, style: `--n:${size}`, ...(mini ? {} : { id: 'tablero', 'data-tablero': 'eagle-eye' }) });
+  const b = el('div', { class: `board${mini ? ' mini' : ''}`, style: `--n:${size}`, ...(mini ? {} : { id: 'tablero', 'data-tablero': 'memory' }) });
   for (let i = 0; i < size * size; i++) {
     b.append(el(mini ? 'span' : 'button', {
       class: 'tile', 'data-i': i, ...(mini ? {} : { type: 'button', 'aria-label': T.covered, disabled: true }),
@@ -292,7 +292,7 @@ function result() {
       el('li', {}, fmt(T.found, { n: g.found })),
       el('li', {}, fmt(T.reached, { n: g.level })),
       el('li', {}, fmt(T.time, { t: mmss(ms) }))),
-    botonResultadoSolo({ C, emoji: '👀', juego: T.name, puntaje: scoreText, tiempo: mmss(ms), url: `${SITIO}labs/eagle-eye/${link(g.seed.startsWith('day:') ? '' : g.seed)}`, alTocar: () => SFX.tap() }),
+    botonResultadoSolo({ C, emoji: '👀', juego: T.name, puntaje: scoreText, tiempo: mmss(ms), url: `${SITIO}labs/memory/${link(g.seed.startsWith('day:') ? '' : g.seed)}`, alTocar: () => SFX.tap() }),
     el('button', { type: 'button', class: 'btn btn--yellow', id: 'btn-otra', onClick: () => { SFX.tap(); start(Math.random().toString(36).slice(2, 8)); } }, T.again),
     salidasFin('lab', { lang, raiz: '../../' }),
     // A line sets the game apart from the comment for those trying it, as in the other lab games
@@ -309,4 +309,4 @@ document.getElementById('sound-slot').append(soundToggle());
 initSound();
 sparkles();
 cover();
-window.__eagleEye = S;
+window.__memory = S;

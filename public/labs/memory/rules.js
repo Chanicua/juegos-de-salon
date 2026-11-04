@@ -1,13 +1,13 @@
 /**
- * Ojo de lince — the texts, in Spanish, English and Portuguese (C-3). Data only: the rules are in
- * engine.js, the pictures in sprites.js. See docs/games/eagle-eye.md.
+ * Memorice — the texts, in Spanish, English and Portuguese (C-3). Data only: the rules are in
+ * engine.js, the pictures in sprites.js. See docs/games/memory.md.
  */
 import { LIVES, LIFE_EVERY } from './engine.js';
 
-export const GAME_ID = 'eagle-eye';
+export const GAME_ID = 'memory';
 
 const ES = {
-  name: 'Ojo de lince',
+  name: 'Memorice',
   back: '‹ Laboratorio',
   tagline: 'Mira, recuerda y encuentra.',
   today: 'La partida de hoy es igual para todos.',
@@ -47,7 +47,7 @@ const ES = {
 };
 
 const EN = {
-  name: 'Eagle Eye',
+  name: 'Memorice',
   back: '‹ Lab',
   tagline: 'Look, remember, find.',
   today: 'Today’s game is the same for everyone.',
@@ -87,7 +87,7 @@ const EN = {
 };
 
 const PT = {
-  name: 'Olho de lince',
+  name: 'Memorice',
   back: '‹ Laboratório',
   tagline: 'Olhe, lembre e encontre.',
   today: 'A partida de hoje é igual para todos.',

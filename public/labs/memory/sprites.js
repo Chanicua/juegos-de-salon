@@ -1,5 +1,5 @@
 /**
- * Ojo de lince — the pixel-art pictures (lab). Each one is 8×8 pixels drawn with letters, one letter
+ * Memorice — the pixel-art pictures (lab). Each one is 8×8 pixels drawn with letters, one letter
  * per colour of PALETTE ('.' is empty), and turned into a small SVG with crisp edges. Our own drawings.
  */
 

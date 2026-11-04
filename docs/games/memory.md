@@ -1,4 +1,8 @@
-# 👀 Ojo de lince (lab prototype, in Games being tried)
+# 👀 Memorice (lab prototype, in Games being tried)
+
+> First built as «Ojo de lince» in `/labs/eagle-eye/`; renamed before it merged at the owner's request:
+> «Memorice» is what this kind of game is called in Chile. The folder and id became `memory`. «¡Ojo de
+> lince!» stays as one of the cheers after a clear.
 
 An endless memory game for one player, in pixel art. The owner asked (in Spanish) for "an incremental
 memory game: pictures, ideally pixel art, all covered first; some are revealed and you have to find
@@ -13,8 +17,8 @@ mixed groups and asks after the first standard rounds.
 
 ## Summary
 
-- **Where:** `https://juegosdesalon.cl/labs/eagle-eye/`, in the lab (each person's key, D-281, D-284).
-  Id `eagle-eye` in the usage signal. Not in `games.js`: lab only, like Números explosivos.
+- **Where:** `https://juegosdesalon.cl/labs/memory/`, in the lab (each person's key, D-281, D-284).
+  Id `memory` in the usage signal; the best is `juegos-de-salon:memory-best`. Not in `games.js`: lab only, like Números explosivos.
 - **For whom:** one player. Spanish, English and Portuguese (C-3), chosen on the cover with the usual
   flags; the lab card is in Spanish like the rest of `/labs/`.
 - **Status:** active project, to try with friends. What would prove it: players who play more than one
@@ -24,12 +28,12 @@ mixed groups and asks after the first standard rounds.
 
 | File | What |
 |---|---|
-| `public/labs/eagle-eye/engine.js` | The rules, no DOM: the levels, a round, a tap, a game |
-| `public/labs/eagle-eye/sprites.js` | The 18 pictures, 8×8 pixels drawn with letters, turned into SVG |
-| `public/labs/eagle-eye/rules.js` | The texts, es / en / pt |
-| `public/labs/eagle-eye/game.js` | The screens and the animations |
-| `public/labs/eagle-eye/engine.test.mjs` | The intro, every level up to 80, rounds 1–40, a game, the pictures and the texts' parity |
-| `tools/e2e/eagle-eye/lab.mjs` | End to end |
+| `public/labs/memory/engine.js` | The rules, no DOM: the levels, a round, a tap, a game |
+| `public/labs/memory/sprites.js` | The 18 pictures, 8×8 pixels drawn with letters, turned into SVG |
+| `public/labs/memory/rules.js` | The texts, es / en / pt |
+| `public/labs/memory/game.js` | The screens and the animations |
+| `public/labs/memory/engine.test.mjs` | The intro, every level up to 80, rounds 1–40, a game, the pictures and the texts' parity |
+| `tools/e2e/memory/lab.mjs` | End to end |
 
 ## Cover
 
@@ -77,11 +81,11 @@ new. `?test` runs every wait four times faster (the end-to-end script).
 
 ## Result
 
-"Fin del juego", the rounds cleared, a new best or the previous best (`juegos-de-salon:eagle-eye-best`
+"Fin del juego", the rounds cleared, a new best or the previous best (`juegos-de-salon:memory-best`
 in `localStorage`), the pictures found, the level reached and the time; share (the solo result image),
 "Jugar de nuevo", back to the lab and, after a line, the comment form.
 
 ## Exceptions to the canons
 
 - Lab game, outside `games.js`, La Copa and Uno al día; no ranking (D-212).
-- `window.__eagleEye` exposes the state (the round's answer) for the end-to-end script.
+- `window.__memory` exposes the state (the round's answer) for the end-to-end script.

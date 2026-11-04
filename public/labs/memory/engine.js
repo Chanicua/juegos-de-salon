@@ -1,10 +1,10 @@
 /**
- * Ojo de lince — the rules (lab prototype, no DOM). An endless memory game: each round some
+ * Memorice — the rules (lab prototype, no DOM). An endless memory game: each round some
  * pixel-art pictures show on a covered board, some of them repeated (a pair, a trio), they hide
  * again, and the player taps every copy of the one picture asked for before the time runs out. The
  * board grows up to 6×6, more pictures show and there is less time to look and to answer, until the
  * lives run out. Everything comes from a seed, so the same seed plays the same game.
- * See docs/games/eagle-eye.md.
+ * See docs/games/memory.md.
  */
 import { SPRITE_NAMES } from './sprites.js';
 
@@ -84,7 +84,8 @@ export function level(n) {
   // The time to answer: shorter every level after the intro, down to 55 %
   const speed = Math.max(0.55, 1 - 0.035 * Math.max(0, n - INTRO.length));
   const showMs = lookMs(n);
-  const tapMs = Math.round(Math.max(1400, 4500 * speed));
+  // …but never under 2.5 s per copy (the owner found 1.4 s too short)
+  const tapMs = Math.round(Math.max(2500, 4500 * speed));
   return { size, intro, tiles, maxGroup, showMs, tapMs };
 }
 

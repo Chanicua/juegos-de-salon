@@ -1,4 +1,4 @@
-// Ojo de lince: the levels, the rounds, a game and the texts (node public/labs/eagle-eye/engine.test.mjs)
+// Memorice: the levels, the rounds, a game and the texts (node public/labs/memory/engine.test.mjs)
 import assert from 'node:assert/strict';
 import { level, sizeOf, makeRound, newPlay, tap, newGame, currentRound, endRound, INTRO, LIVES, LIFE_EVERY, MAX_SIZE } from './engine.js';
 import { SPRITES, SPRITE_NAMES, PALETTE } from './sprites.js';
@@ -22,11 +22,13 @@ for (let n = 2; n <= 80; n++) {
     assert.ok(L.tiles >= prev.tiles, `${n}: never fewer tiles`);
     assert.ok(L.tapMs <= prev.tapMs, `${n}: never more time to answer`);
   }
-  assert.ok(L.tapMs >= 1400 && L.showMs >= 800, `${n}: floors`);
+  assert.ok(L.tapMs >= 2500 && L.showMs >= 800, `${n}: floors`);
   assert.ok(L.maxGroup === (L.size >= 5 ? 3 : 2), `${n}: trios from the 5×5`);
   prev = L;
 }
 assert.equal(sizeOf(9), MAX_SIZE);
+assert.equal(level(1).tapMs, 4500);
+assert.equal(level(40).tapMs, 2500, 'never under 2.5 s per copy');
 
 // A round: the board holds the groups, and what is asked is every copy of one picture
 const asked = new Set();
@@ -97,4 +99,4 @@ for (const [lang, L] of Object.entries(LOCALES)) {
   const length = L.steps.map(([, x]) => x).join(' ').length;
   assert.ok(length <= 280, `${lang}: "How to play" has ${length} characters (U-18: at most 280)`);
 }
-console.log('✓ ojo de lince');
+console.log('✓ memorice');
