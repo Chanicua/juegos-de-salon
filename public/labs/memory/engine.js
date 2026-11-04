@@ -60,12 +60,13 @@ const FILL = 0.5;
 export const sizeOf = n => (n <= 2 ? 3 : n <= 5 ? 4 : n <= 8 ? 5 : MAX_SIZE);
 
 /**
- * How long the pictures stay up in level `n` (the owner's request): 6 s at first, down evenly to 2 s
- * at level 20, to 1.5 s at level 25, and then 50 ms less each level down to 0.8 s, so that sooner or
- * later nobody can keep up.
+ * How long the pictures stay up in level `n` (the owner's request): 4.5 s in the first two levels,
+ * 4 s in the third and down evenly to 2 s at level 20, to 1.5 s at level 25, and then 50 ms less each
+ * level down to 0.8 s, so that sooner or later nobody can keep up.
  */
 export function lookMs(n) {
-  if (n <= 20) return Math.round(6000 - 4000 * (n - 1) / 19);
+  if (n <= 2) return 4500;
+  if (n <= 20) return Math.round(4000 - 2000 * (n - 3) / 17);
   if (n <= 25) return Math.round(2000 - 100 * (n - 20));
   return Math.max(800, 1500 - 50 * (n - 25));
 }

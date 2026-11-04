@@ -67,8 +67,8 @@ it a bar for the time left and the prompt.
   with a picture are 2 + the level, up to half the board (18 on the 6×6); the groups are drawn at
   random, singles and pairs, and trios from the 5×5; what is asked is drawn too: a single, a pair or a
   trio, whatever the board holds.
-- **Time to look** (`lookMs`, the owner's request): 6 s at level 1, down evenly to 2 s at level 20,
-  then to 1.5 s at level 25, and 50 ms less each level after that down to 0.8 s (level 39), so that
+- **Time to look** (`lookMs`, the owner's request): 4.5 s in levels 1 and 2, 4 s in level 3 and down
+  evenly to 2 s at level 20, then to 1.5 s at level 25, and 50 ms less each level after that down to 0.8 s (level 39), so that
   sooner or later nobody can keep up. **Time to answer:** 4.5 s per copy at first; every level after
   the intro is 3.5 % shorter, down to 1.4 s per copy.
 
