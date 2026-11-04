@@ -8,7 +8,9 @@ import { LOCALES } from './rules.js';
 assert.deepEqual([1, 2, 3, 4].map(n => makeRound('a', n).groups.map(g => g.count)), INTRO);
 assert.deepEqual([1, 2, 3, 4].map(n => makeRound('b', n).ask.cells.length), [1, 2, 1, 2]);
 assert.deepEqual([1, 2, 3, 4].map(sizeOf), [3, 3, 4, 4]);
-assert.equal(level(1).showMs, 2600, 'the 3×3 keeps the most time to look');
+// The time to look: 6 s, 2 s at level 20, 1.5 s at 25, then down to 0.8 s, never longer than the level before
+assert.deepEqual([1, 20, 25, 30, 39, 60].map(n => level(n).showMs), [6000, 2000, 1500, 1250, 800, 800]);
+for (let n = 2; n <= 60; n++) assert.ok(level(n).showMs <= level(n - 1).showMs, `${n}: never more time to look`);
 
 // The levels: the board grows to 6×6 and never shrinks, more tiles and less time, down to floors
 let prev = level(1);
@@ -20,7 +22,7 @@ for (let n = 2; n <= 80; n++) {
     assert.ok(L.tiles >= prev.tiles, `${n}: never fewer tiles`);
     assert.ok(L.tapMs <= prev.tapMs, `${n}: never more time to answer`);
   }
-  assert.ok(L.tapMs >= 1400 && L.showMs >= 1500, `${n}: floors`);
+  assert.ok(L.tapMs >= 1400 && L.showMs >= 800, `${n}: floors`);
   assert.ok(L.maxGroup === (L.size >= 5 ? 3 : 2), `${n}: trios from the 5×5`);
   prev = L;
 }

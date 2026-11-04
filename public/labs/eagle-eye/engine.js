@@ -60,20 +60,30 @@ const FILL = 0.5;
 export const sizeOf = n => (n <= 2 ? 3 : n <= 5 ? 4 : n <= 8 ? 5 : MAX_SIZE);
 
 /**
+ * How long the pictures stay up in level `n` (the owner's request): 6 s at first, down evenly to 2 s
+ * at level 20, to 1.5 s at level 25, and then 50 ms less each level down to 0.8 s, so that sooner or
+ * later nobody can keep up.
+ */
+export function lookMs(n) {
+  if (n <= 20) return Math.round(6000 - 4000 * (n - 1) / 19);
+  if (n <= 25) return Math.round(2000 - 100 * (n - 20));
+  return Math.max(800, 1500 - 50 * (n - 25));
+}
+
+/**
  * The difficulty of level `n` (1, 2, 3…, endless): the board's side, the tiles with a picture, the
  * biggest group (a trio from the 5×5 on), how long the pictures stay up and how long there is to
  * find each copy. After the INTRO the groups are drawn at random, mixed (the owner's request), and
- * every level brings a tile more and a little less time, down to a floor.
+ * every level brings a tile more and a little less time (`lookMs`), down to a floor.
  */
 export function level(n) {
   const size = sizeOf(n);
   const intro = INTRO[n - 1] || null;
   const tiles = intro ? intro.reduce((a, b) => a + b, 0) : Math.min(Math.floor(size * size * FILL), 2 + n);
   const maxGroup = size >= 5 ? 3 : 2;
-  // Faster every level after the intro, down to 55 %
+  // The time to answer: shorter every level after the intro, down to 55 %
   const speed = Math.max(0.55, 1 - 0.035 * Math.max(0, n - INTRO.length));
-  // The 3×3 keeps the most time to look (the owner's request)
-  const showMs = size === 3 ? 2600 : Math.round(Math.max(1500, (1400 + 220 * tiles) * speed));
+  const showMs = lookMs(n);
   const tapMs = Math.round(Math.max(1400, 4500 * speed));
   return { size, intro, tiles, maxGroup, showMs, tapMs };
 }
