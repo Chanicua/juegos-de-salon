@@ -1,49 +1,67 @@
-// Pulso's engine (lab): the song is the same for a seed, it gets harder part by part, it keeps the
-// one-finger rules (never two notes at once, room for the thumb to move, nothing while a hold is
-// held), and the judging, the multiplier, the energy and the end work as the cover says.
+// Pulso's engine and songs (lab): every bar of every score adds up; each song is the same every
+// time, gets faster and denser part by part, keeps the one-finger rules (never two notes at once,
+// room for the thumb to move, nothing while a hold is held), and its notes are its melody; the
+// audio files exist, light enough for git; and the judging, the multiplier, the energy and the end
+// work as the cover says.
 import assert from 'node:assert/strict';
+import { statSync } from 'node:fs';
 import {
-  cancion, nuevaPartida, tocar, soltar, avanzar, juzgar, precision, maximo, tarjeta, multiplicador, bpmDe,
-  SECCIONES, COMPASES, INTRO, HUECO, SOSTENER_MIN, VENTANAS, VENTANAS_SOLTAR, ENERGIA, PUNTOS, BPM_INICIO, BPM_FIN, CARRILES,
+  cancion, nuevaPartida, tocar, soltar, avanzar, juzgar, precision, maximo, tarjeta, multiplicador,
+  INTRO, PREROLL, HUECO, SOSTENER_MIN, VENTANAS, VENTANAS_SOLTAR, ENERGIA, PUNTOS, CARRILES,
 } from './engine.js';
+import { CANCIONES, cancionPorId, compas, midi } from './songs.js';
 
-// The same seed, the same song; another seed, another one
-const a = cancion('2026-11-04');
-assert.deepEqual(cancion('2026-11-04'), a);
-assert.notDeepEqual(cancion('otra').notas.map(n => [n.t, n.c]), a.notas.map(n => [n.t, n.c]));
+// The score's notation
+assert.equal(midi('A4'), 69);
+assert.equal(midi('C#4'), 61);
+assert.equal(midi('Bb3'), 58);
+assert.deepEqual(compas('B3:8 C#4:8 r:4 F#4:2').map(n => [n.tick, n.largo]), [[0, 6], [6, 6], [24, 24]]);
+assert.throws(() => compas('A4:4 A4:4'), /24 ticks/);
+assert.throws(() => compas('H4:4 A4:2.'), /not one/);
 
-// The shape: the intro, nine parts of eight bars and the closing bar; between 2 and 3 minutes
-assert.equal(a.compases.length, INTRO + SECCIONES * COMPASES + 1);
-assert.equal(bpmDe(0), BPM_INICIO);
-assert.equal(bpmDe(SECCIONES - 1), BPM_FIN);
-for (let i = 1; i < a.compases.length; i++) assert.ok(a.compases[i].bpm >= a.compases[i - 1].bpm, 'the tempo never slows down');
+assert.equal(new Set(CANCIONES.map(c => c.id)).size, CANCIONES.length, 'two songs with the same id');
+assert.ok(CANCIONES.every((c, i) => !i || c.dificultad >= CANCIONES[i - 1].dificultad), 'the songs go from easy to hard');
+assert.equal(cancionPorId('quinta').autor, 'Beethoven');
+assert.equal(cancionPorId('nada'), null);
 
-for (const semilla of ['2026-11-04', 'a', 'b', 'c', 'rock', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12', 'x13', 'x14', 'x15']) {
-  const c = cancion(semilla);
-  assert.ok(c.duracion > 120 && c.duracion < 180, `${semilla}: ${c.duracion.toFixed(0)} s`);
-  // The first note comes after the count-in
-  assert.ok(c.notas[0].t >= c.compases[INTRO].t - 1e-9, `${semilla}: a note during the intro`);
+for (const def of CANCIONES) {
+  const c = cancion(def);
+  // Every bar of the score adds up (compas() throws otherwise), and the song is the same every time
+  assert.deepEqual(cancion(def).notas, c.notas, `${def.id}: not the same twice`);
+  assert.ok(c.duracion > 90 && c.duracion < 150, `${def.id}: ${c.duracion.toFixed(0)} s`);
+  assert.equal(c.compases[0].t, PREROLL, `${def.id}: the audio's first sound is at PREROLL`);
+  assert.ok(c.notas[0].t >= c.compases[INTRO].t - 1e-9, `${def.id}: a note during the count-in`);
+  // Faster part by part
+  for (let s = 1; s < c.partes.length; s++) assert.ok(c.partes[s].bpm > c.partes[s - 1].bpm, `${def.id}: part ${s + 1} is not faster`);
   // One finger: in order, never two at once, room to move, a hold leaves room for what follows
   for (let i = 1; i < c.notas.length; i++) {
     const x = c.notas[i - 1], y = c.notas[i];
-    assert.ok(y.t > x.t, `${semilla}: two notes at once`);
+    assert.ok(y.t > x.t, `${def.id}: two notes at once`);
     assert.ok(y.c >= 0 && y.c < CARRILES);
     const libre = x.fin ?? x.t;
-    assert.ok(y.t - libre >= HUECO[Math.abs(y.c - x.c)] - 1e-9, `${semilla}: note ${i} comes ${((y.t - libre) * 1000).toFixed(0)} ms after the thumb is free`);
+    assert.ok(y.t - libre >= HUECO[Math.abs(y.c - x.c)] - 1e-9, `${def.id}: note ${i} comes ${((y.t - libre) * 1000).toFixed(0)} ms after the thumb is free`);
   }
-  for (const n of c.notas) if (n.fin != null) assert.ok(n.fin - n.t >= SOSTENER_MIN - 1e-9, `${semilla}: a hold too short to read`);
-  // Harder part by part: more notes per second in the last three than in the first three
+  for (const n of c.notas) if (n.fin != null) assert.ok(n.fin - n.t >= SOSTENER_MIN - 1e-9, `${def.id}: a hold too short to read`);
+  assert.ok(c.notas.some(n => n.fin != null), `${def.id}: no holds`);
+  assert.ok(c.notas.at(-1).fin != null, `${def.id}: it does not end on a long note`);
+  // Harder to the end: more notes per second in the last part than in the first
   const densidad = s => {
     const bars = c.compases.filter(b => b.seccion === s && b.tipo !== 'final');
     return c.notas.filter(n => n.seccion === s).length / bars.reduce((x, b) => x + b.dur, 0);
   };
-  const ini = (densidad(0) + densidad(1) + densidad(2)) / 3, fin = (densidad(6) + densidad(7) + densidad(8)) / 3;
-  assert.ok(fin > ini * 1.8, `${semilla}: the end (${fin.toFixed(2)}/s) is not much harder than the start (${ini.toFixed(2)}/s)`);
-  assert.ok(c.notas.some(n => n.fin != null), `${semilla}: no holds`);
-  // The song ends on a long hold
-  assert.ok(c.notas.at(-1).fin != null);
-  // The band plays all along
-  assert.ok(c.musica.length > 1000 && c.musica.every(e => e.t >= 0 && e.t < c.duracion));
+  assert.ok(densidad(c.partes.length - 1) > densidad(0) * 1.2, `${def.id}: the last part (${densidad(c.partes.length - 1).toFixed(2)}/s) is not harder than the first (${densidad(0).toFixed(2)}/s)`);
+  // The notes are the melody: each one is a note the lead guitar plays, at that time and pitch
+  const lead = new Map(c.musica.guitarra.map(e => [e.t.toFixed(4), e.midi]));
+  for (const n of c.notas) assert.equal(lead.get(n.t.toFixed(4)), n.midi, `${def.id}: a note at ${n.t.toFixed(2)} s that the guitar does not play`);
+  // All three pads are used
+  for (let k = 0; k < CARRILES; k++) assert.ok(c.notas.filter(n => n.c === k).length > c.notas.length / 10, `${def.id}: pad ${k} is almost never used`);
+  // The band plays all along, inside the audio
+  assert.ok(c.musica.banda.length > 800 && c.musica.banda.every(e => e.t >= PREROLL && e.t < c.duracion));
+  // Its two audio files, made by tools/generators/pulse/render.mjs, under git's 5 MB (D-494)
+  for (const parte of ['banda', 'guitarra']) {
+    const { size } = statSync(new URL(`songs/${def.id}-${parte}.mp3`, import.meta.url));
+    assert.ok(size > 200_000 && size < 5_000_000, `${def.id}-${parte}.mp3: ${size} bytes`);
+  }
 }
 
 // Judging
@@ -57,22 +75,23 @@ assert.equal(multiplicador(9), 1);
 assert.equal(multiplicador(10), 2);
 assert.equal(multiplicador(500), 4);
 
+const a = cancion(CANCIONES[0]);
+
 // A perfect game: every note hit, every hold released on time, the song complete
-{
-  const p = nuevaPartida(a);
-  for (const n of a.notas) {
+for (const def of CANCIONES) {
+  const c = cancion(def);
+  const p = nuevaPartida(c);
+  for (const n of c.notas) {
     avanzar(p, n.t);
-    const r = tocar(p, n.t, n.c);
-    assert.equal(r.calif, 'perfecto');
+    assert.equal(tocar(p, n.t, n.c).calif, 'perfecto');
     if (n.fin != null) { avanzar(p, n.fin); assert.equal(soltar(p, n.fin).calif, 'perfecto'); }
   }
-  avanzar(p, a.duracion);
+  avanzar(p, c.duracion);
   assert.equal(p.fin, 'completa');
   assert.equal(p.cuenta.fallo, 0);
   assert.equal(precision(p), 100);
-  assert.equal(p.puntos, maximo(a));
-  assert.equal(tarjeta(p), '🟩'.repeat(SECCIONES));
-  assert.equal(p.mejorRacha, a.notas.length + a.notas.filter(n => n.fin != null).length);
+  assert.equal(p.puntos, maximo(c));
+  assert.equal(tarjeta(p), '🟩'.repeat(c.partes.length));
 }
 
 // Tapping the wrong pad, or on nothing, breaks the run and hits nothing
@@ -127,7 +146,7 @@ assert.equal(multiplicador(500), 4);
   assert.equal(p.cuenta.fallo, Math.ceil(ENERGIA.inicio / -ENERGIA.fallo));
   assert.ok(t < a.duracion / 2, 'the power goes out early when nothing is played');
   assert.equal(precision(p), 0);
-  assert.match(tarjeta(p), /^🟥⬛+$/);
+  assert.match(tarjeta(p), /^🟥⬛+$/u);
 }
 
-console.log(`✓ Pulso: ${a.notas.length} notes in today's song, one-finger rules on 20 songs, judging, holds and the power cut`);
+console.log(`✓ Pulso: ${CANCIONES.length} songs (${CANCIONES.map(c => cancion(c).notas.length).join(', ')} notes), their scores, files and one-finger rules, judging, holds and the power cut`);

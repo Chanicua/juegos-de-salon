@@ -627,10 +627,10 @@ export const PATHS = {
     intro: [],
     game: [START, `1`, `1`, `1`, `1`, `1`, `1`],
   },
-  // Pulso: the cover, and the stage a moment after Empezar (it plays by itself, silent)
+  // Pulso: the cover, and the stage a moment after its first song starts (it plays by itself, silent)
   'labs/pulse': {
     intro: [],
-    game: [`window.__pulso.auto = true; document.getElementById('btn-empezar').click(); 1`, `1`, `1`, `1`, `1`, `1`, `1`, `1`, `1`],
+    game: [`window.__pulso.auto = true; document.getElementById('cancion-alegria').click(); 1`, `1`, `1`, `1`, `1`, `1`, `1`, `1`, `1`],
   },
   'labs/dominorama': {
     intro: [],

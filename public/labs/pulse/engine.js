@@ -4,21 +4,21 @@
  * note is pressed when its head arrives, held, and released exactly when its tail ends. Taps only:
  * never a swipe, never two notes at once, never a note while another is held.
  *
- * The song is generated from a seed (the day's, or one of its own): 90s rock in nine parts that get
- * harder (faster tempo, denser and more syncopated riffs, triplets, sixteenths, holds with quick taps
- * after them). The same score drives the music (drums, bass, rhythm guitar in music.js) and the notes,
- * so the rhythm the player hears is the one they play. Pure: no DOM and no audio here.
+ * The songs are well-known melodies in the public domain, arranged as rock (songs.js). From a song's
+ * score this makes its bars, the notes the player plays (the melody: low notes left, high right) and
+ * the music's events, which tools/generators/pulse/render.mjs turns into the two audio files the
+ * game plays: the band, and the lead guitar that the player's notes are. Parts get faster, and their
+ * level lets more of the melody be played: the notes on the beat, then the eighths, then all.
+ * Pure: no DOM and no audio here.
  */
-import { rng } from '../../assets/js/rng.js';
+import { compas, midi } from './songs.js';
 
 export const CARRILES = 3;
-/** The song: an intro of drums, nine parts of eight bars, and a closing bar with one long hold. */
-export const SECCIONES = 9;
-export const COMPASES = 8;
+/** Two bars before the song: a groove, then four sticks that count it in. */
 export const INTRO = 2;
-export const BPM_INICIO = 96;
-export const BPM_FIN = 138;
-/** Ticks per beat: 12 fits sixteenths (3) and eighth-note triplets (4). A bar has 48. */
+/** Silence at the start of the audio files: the first sound tells the game where 0 is (decoders pad mp3). */
+export const PREROLL = 0.5;
+/** Ticks per beat: 12 fits sixteenths (3) and triplets (4). A bar has 48. */
 export const TICKS = 12;
 const BAR = 4 * TICKS;
 /** How long a note is in view before it reaches its pad, in seconds. */
@@ -42,139 +42,89 @@ export const ENERGIA = { inicio: 60, max: 100, perfecto: 2, bien: 1, casi: 0, fa
 export const HUECO = [0.13, 0.16, 0.21];
 /** A hold shorter than this is played as a tap: a tail that short cannot be read. */
 export const SOSTENER_MIN = 0.32;
+/** Which melody notes a part's level plays: on the beat, on the eighths, all (long notes always). */
+const GRILLA = [12, 6, 1];
+/** A note this long (a dotted quarter or more) is a hold. */
+const LARGO_SOSTENER = 18;
 
-/** The keys a 90s riff lives in (MIDI of the low root): E, A, D, G and C. */
-const TONICAS = [40, 45, 38, 43, 36];
-/** Chord progressions, as semitones from the root, one chord per bar (they repeat after four). */
-const PROGRESIONES = [
-  [0, 10, 5, 0], // I bVII IV I
-  [0, 0, 10, 5], // I I bVII IV
-  [0, 3, 5, 0], // i bIII IV i
-  [0, 10, 8, 10], // i bVII bVI bVII
-  [0, 5, 3, 10], // i IV bIII bVII
-  [0, 7, 5, 3], // i V IV bIII
-];
-/** The style of each part: rock (straight eighths) or funk (sixteenths, syncopated kick). */
-const ESTILOS = ['rock', 'rock', 'funk', 'rock', 'funk', 'rock', 'funk', 'rock', 'rock'];
+const raiz = nombre => midi(`${nombre}2`);
 
-/**
- * The rhythm vocabulary, one bar each, by level (0 is the easiest): [tick] is a tap, [tick, length]
- * a hold of that many ticks. A part picks two riffs of its level and a fill of the next one.
- */
-const RIFFS = [
-  // 0: quarters
-  [[[0], [12], [24], [36]], [[0], [12], [24]], [[0], [24], [36]], [[0], [12], [36]]],
-  // 1: the first holds
-  [[[0, 18], [24], [36]], [[0], [12], [24, 18]], [[0, 30], [36]], [[0], [12, 18], [36]]],
-  // 2: eighths
-  [[[0], [6], [12], [24], [36]], [[0], [12], [18], [24], [36]], [[0, 12], [18], [24], [30], [36]], [[0], [6], [12], [24, 18]]],
-  // 3: syncopation (the 3-3-2 of rock)
-  [[[0], [18], [36]], [[0], [18], [30], [36]], [[0, 12], [18], [36], [42]], [[6], [12], [24], [30], [42]]],
-  // 4: holds with taps right after
-  [[[0, 18], [24], [30], [36]], [[0], [6], [12, 12], [30], [36]], [[0, 24], [30], [36], [42]], [[0], [9], [18], [24, 18]]],
-  // 5: eighth-note triplets
-  [[[0], [4], [8], [12], [24], [36]], [[0], [12], [16], [20], [24], [36]], [[0, 12], [16], [20], [24], [36]], [[0], [8], [12], [24], [32], [36]]],
-  // 6: sixteenths
-  [[[0], [3], [6], [12], [24], [27], [30], [36]], [[0], [6], [9], [12], [18], [24], [36], [42]], [[0], [9], [12], [21], [24], [36]], [[0, 9], [12], [15], [18], [24], [36]]],
-  // 7: funk (offbeat sixteenths)
-  [[[0], [3], [9], [12], [18], [21], [30], [36], [42]], [[0], [6], [9], [15], [21], [24], [33], [36], [42]], [[0, 9], [12], [15], [21], [24, 9], [36], [39], [45]], [[3], [6], [12], [18], [27], [30], [36], [42]]],
-  // 8: everything
-  [[[0], [3], [6], [9], [12], [24], [28], [32], [36], [42]], [[0], [4], [8], [12, 9], [24], [27], [30], [36], [39], [42]], [[0, 6], [9], [12], [15], [18], [24, 6], [33], [36], [39], [45]], [[0], [6], [9], [12], [16], [20], [24], [30], [33], [36], [42], [45]]],
-  // 9: the fills of the last part
-  [[[0], [3], [6], [9], [12], [15], [18], [21], [24], [28], [32], [36], [40], [44]], [[0], [4], [8], [12], [16], [20], [24], [27], [30], [33], [36], [39], [42], [45]]],
-];
-
-/** The minor pentatonic (and the blue note), as semitones: low degrees go left, high ones right. */
-const GRADOS = [[0, 3], [5, 7], [10, 12, 15]];
-
-/** A number from a text: the same seed gives the same song on every phone. */
-export function hash(texto) {
-  let h = 2166136261;
-  for (const c of String(texto)) h = Math.imul(h ^ c.codePointAt(0), 16777619);
-  return h >>> 0;
+/** A part's bars, with the melody of each (quarters split in two eighths when the part plays `doble`). */
+function barrasDe(def, parte) {
+  return parte.frases.flatMap(f => def.frases[f]).map(([texto, acorde]) => {
+    let notas = compas(texto);
+    if (parte.doble) notas = notas.flatMap(n => (n.largo === 12 ? [{ ...n, largo: 6 }, { ...n, tick: n.tick + 6, largo: 6 }] : [n]));
+    return { notas, acorde };
+  });
 }
 
-/** The tempo of each part: from BPM_INICIO to BPM_FIN, a step faster each part. */
-export const bpmDe = s => Math.round(BPM_INICIO + (BPM_FIN - BPM_INICIO) * Math.min(s, SECCIONES - 1) / (SECCIONES - 1));
-
 /**
- * The song for a seed: its bars (time, tempo, part, chord), the notes the player plays and the music
- * events (drums, bass, chords), all in seconds from the start.
+ * The song from its score (songs.js): its bars (time, tempo, part, chord), the notes the player
+ * plays and the music's events ({ banda, guitarra }), all in seconds from the start of the audio.
  */
-export function cancion(semilla) {
-  const r = rng(hash(semilla));
-  const pick = a => a[Math.floor(r() * a.length)];
-  const tonica = pick(TONICAS);
+export function cancion(def) {
   const compases = [];
-  let t = 0;
-  const agregar = (seccion, bpm, acorde, tipo) => {
-    const dur = 4 * 60 / bpm;
-    compases.push({ i: compases.length, t, dur, bpm, seccion, acorde, tipo });
+  let t = PREROLL;
+  const agregar = (b) => {
+    const dur = 4 * 60 / b.bpm;
+    compases.push({ i: compases.length, t, dur, ...b });
     t += dur;
   };
-  for (let k = 0; k < INTRO; k++) agregar(-1, bpmDe(0), 0, 'intro');
-  const partes = [];
-  for (let s = 0; s < SECCIONES; s++) {
-    const prog = pick(PROGRESIONES);
-    const a = pick(RIFFS[s]);
-    let b = pick(RIFFS[s]);
-    if (b === a && RIFFS[s].length > 1) b = RIFFS[s][(RIFFS[s].indexOf(a) + 1) % RIFFS[s].length];
-    const relleno = pick(RIFFS[Math.min(s + 1, RIFFS.length - 1)]);
-    partes.push({ s, bpm: bpmDe(s), estilo: ESTILOS[s], prog, riffs: [a, b, relleno], desde: compases.length });
-    for (let k = 0; k < COMPASES; k++) agregar(s, bpmDe(s), prog[k % 4], k === COMPASES - 1 ? 'relleno' : k % 2 ? 'b' : 'a');
+  const p0 = def.partes[0];
+  const r0 = raiz(def.frases[p0.frases[0]][0][1]);
+  for (let k = 0; k < INTRO; k++) agregar({ bpm: p0.bpm, seccion: -1, acorde: r0, tipo: 'intro', estilo: p0.estilo, notas: [] });
+  const partes = def.partes.map((parte, s) => {
+    const desde = compases.length;
+    const barras = barrasDe(def, parte);
+    barras.forEach((b, k) => agregar({ bpm: parte.bpm, seccion: s, acorde: raiz(b.acorde), estilo: parte.estilo, nivel: parte.nivel,
+      tipo: k === barras.length - 1 ? 'relleno' : 'tema', frase: Math.floor(k / 4), notas: b.notas }));
+    return { s, bpm: parte.bpm, nivel: parte.nivel, estilo: parte.estilo, desde, hasta: compases.length };
+  });
+  const ult = def.partes.at(-1);
+  agregar({ bpm: ult.bpm, seccion: def.partes.length - 1, acorde: raiz(def.final.acorde), tipo: 'final', estilo: ult.estilo, notas: [{ tick: 0, largo: 36, midi: midi(def.final.nota) }] });
+  const duracion = t + 1.5;
+
+  // The lead guitar plays every note of the melody
+  const guitarra = [];
+  for (const bar of compases) {
+    const tick = bar.dur / BAR;
+    for (const n of bar.notas) guitarra.push({ t: bar.t + n.tick * tick, dur: n.largo * tick, midi: n.midi, tipo: 'lead' });
   }
-  agregar(SECCIONES - 1, bpmDe(SECCIONES - 1), 0, 'final');
-  const duracion = t + compases.at(-1).dur * 0.5;
 
-  // The lanes of each riff are chosen once per part, so a riff repeated is the same riff to play
-  const lanes = new Map();
-  const carrilesDe = (riff, s) => {
-    const key = `${s}:${RIFFS.flat().indexOf(riff)}`;
-    if (lanes.has(key)) return lanes.get(key);
-    const salto = s >= 5 ? 2 : 1;
-    let c = Math.floor(r() * CARRILES);
-    const out = riff.map((_, k) => {
-      if (k) {
-        const quieto = r() < (s < 3 ? 0.45 : 0.25);
-        if (!quieto) c = Math.max(0, Math.min(CARRILES - 1, c + (r() < 0.5 ? -1 : 1) * (1 + (r() < 0.25 ? salto - 1 : 0))));
-      }
-      return { c, grado: pick(GRADOS[c]) };
-    });
-    lanes.set(key, out);
-    return out;
-  };
-
-  // The notes, bar by bar, keeping the one-finger rules (HUECO, SOSTENER_MIN)
+  // The notes to play: the melody notes of the part's level; lanes by pitch within each phrase
+  const candidatas = [];
+  for (const bar of compases) {
+    if (bar.tipo === 'intro') continue;
+    const tick = bar.dur / BAR;
+    const grilla = bar.tipo === 'final' ? 1 : GRILLA[bar.nivel];
+    for (const n of bar.notas) {
+      if (n.tick % grilla && n.largo < LARGO_SOSTENER) continue;
+      candidatas.push({ t: bar.t + n.tick * tick, dur: n.largo * tick, largo: n.largo, midi: n.midi, seccion: bar.seccion, frase: `${bar.seccion}:${bar.frase ?? 'f'}` });
+    }
+  }
+  const rangos = new Map();
+  for (const n of candidatas) {
+    const r = rangos.get(n.frase) || { lo: Infinity, hi: -Infinity };
+    r.lo = Math.min(r.lo, n.midi); r.hi = Math.max(r.hi, n.midi);
+    rangos.set(n.frase, r);
+  }
   const notas = [];
   let antes = null; // the last note kept: its lane and when the thumb is free again
-  const poner = (n) => {
+  for (const x of candidatas) {
+    const { lo, hi } = rangos.get(x.frase);
+    const c = hi === lo ? 1 : Math.min(CARRILES - 1, Math.floor(((x.midi - lo) / (hi - lo + 1)) * CARRILES));
+    const n = { t: x.t, c, midi: x.midi, seccion: x.seccion };
+    if (x.largo >= LARGO_SOSTENER && x.dur * 0.85 >= SOSTENER_MIN) n.fin = x.t + x.dur * 0.85;
     if (antes) {
       const libre = antes.fin ?? antes.t;
       if (n.t - libre < HUECO[Math.abs(n.c - antes.c)]) {
-        // Too quick for the thumb: try the same pad as before, else drop it
+        // Too quick for the thumb: the same pad as before, if there is time for that, else not played
         if (n.t - libre >= HUECO[0] && antes.fin == null) n.c = antes.c;
-        else return;
+        else continue;
       }
     }
     notas.push(n);
     antes = n;
-  };
-  for (const bar of compases) {
-    if (bar.tipo === 'intro') continue;
-    const tick = bar.dur / BAR;
-    const tonicaBar = tonica + bar.acorde;
-    if (bar.tipo === 'final') {
-      poner({ t: bar.t, fin: bar.t + 36 * tick, c: 1, midi: tonica + 12, seccion: bar.seccion });
-      continue;
-    }
-    const parte = partes[bar.seccion];
-    const riff = parte.riffs[bar.tipo === 'a' ? 0 : bar.tipo === 'b' ? 1 : 2];
-    const carr = carrilesDe(riff, bar.seccion);
-    riff.forEach(([k, largo], j) => {
-      const n = { t: bar.t + k * tick, c: carr[j].c, midi: tonicaBar + 12 + carr[j].grado, seccion: bar.seccion };
-      if (largo && largo * tick >= SOSTENER_MIN) n.fin = n.t + largo * tick;
-      poner(n);
-    });
   }
   // A hold must leave room for the note after it: shorten it, or make it a tap
   for (let k = 0; k < notas.length - 1; k++) {
@@ -186,55 +136,66 @@ export function cancion(semilla) {
   }
   notas.forEach((n, i) => { n.id = i; });
 
-  return { semilla: String(semilla), tonica, compases, partes, notas, musica: musica(compases, partes, tonica), duracion };
+  return { id: def.id, def, compases, partes, notas, musica: { banda: banda(compases, partes), guitarra }, duracion };
 }
 
 /**
  * The band, as events: { t, tipo, midi?, dur?, v? }. tipo is kick, snare, hat, open (an open hat),
- * crash, bass or chord (a power chord of the rhythm guitar). The intro counts in with sticks.
+ * crash, stick, bass, chord (a power chord) or mute (a palm-muted one). Four drum styles: suave (a
+ * half-time beat), rock, duro (driving eighths) and galope (the metal gallop).
  */
-function musica(compases, partes, tonica) {
+function banda(compases, partes) {
   const ev = [];
   for (const bar of compases) {
     const tick = bar.dur / BAR;
     const at = (k, tipo, extra = {}) => ev.push({ t: bar.t + k * tick, tipo, ...extra });
-    const estilo = bar.seccion >= 0 ? partes[bar.seccion].estilo : 'rock';
-    const nivel = Math.max(0, bar.seccion);
-    const raiz = tonica + bar.acorde;
+    const r = bar.acorde;
     if (bar.tipo === 'intro') {
-      if (bar.i === 0) { at(0, 'kick'); at(0, 'crash', { v: 0.6 }); for (let k = 12; k < BAR; k += 12) at(k, 'hat'); at(24, 'snare', { v: 0.5 }); }
+      if (bar.i === 0) { at(0, 'kick'); at(0, 'crash', { v: 0.7 }); at(0, 'chord', { midi: r, dur: bar.dur * 0.9 }); at(0, 'bass', { midi: r - 12, dur: bar.dur * 0.9 }); }
       else for (let k = 0; k < 4; k++) at(k * 12, 'stick', { cuenta: k + 1 });
       continue;
     }
-    if (bar.tipo === 'final') { at(0, 'kick'); at(0, 'crash'); at(0, 'chord', { midi: tonica, dur: bar.dur * 0.9 }); at(0, 'bass', { midi: tonica - 12, dur: bar.dur * 0.9 }); continue; }
-    const primero = bar.i === partes[bar.seccion].desde;
-    if (primero) at(0, 'crash');
+    if (bar.tipo === 'final') {
+      at(0, 'kick'); at(0, 'crash'); at(0, 'chord', { midi: r, dur: bar.dur * 1.4 }); at(0, 'bass', { midi: r - 12, dur: bar.dur * 1.4 });
+      for (const k of [36, 39, 42, 45]) at(k, 'snare', { v: 0.5 });
+      continue;
+    }
+    const parte = partes[bar.seccion];
+    if (bar.i === parte.desde) at(0, 'crash');
+    const e = bar.estilo;
     // Drums
-    if (estilo === 'funk') {
-      for (const k of [0, 9, 30]) at(k, 'kick');
+    if (e === 'suave') {
+      at(0, 'kick'); at(30, 'kick', { v: 0.7 }); at(24, 'snare');
+      for (let k = 0; k < BAR; k += 6) at(k, 'hat', { v: k % 12 ? 0.35 : 0.6 });
+    } else if (e === 'rock') {
+      for (const k of [0, 18, 24, 30]) at(k, 'kick', { v: k % 24 ? 0.8 : 1 });
       at(12, 'snare'); at(36, 'snare');
-      for (const k of [21, 45]) at(k, 'snare', { v: 0.25 });
-      for (let k = 0; k < BAR; k += 3) at(k, 'hat', { v: k % 6 ? 0.35 : 0.7 });
-    } else {
-      at(0, 'kick'); at(24, 'kick');
-      if (nivel >= 3) at(30, 'kick');
-      if (nivel >= 6) at(18, 'kick', { v: 0.7 });
+      for (let k = 0; k < BAR; k += 6) at(k, k === 42 ? 'open' : 'hat', { v: k % 12 ? 0.4 : 0.75 });
+    } else if (e === 'duro') {
+      for (let k = 0; k < BAR; k += 6) at(k, 'kick', { v: k % 12 ? 0.75 : 1 });
       at(12, 'snare'); at(36, 'snare');
-      const paso = nivel >= 6 ? 3 : 6;
-      for (let k = 0; k < BAR; k += paso) at(k, k === 42 && nivel >= 2 ? 'open' : 'hat', { v: k % 12 ? 0.4 : 0.75 });
-    }
-    if (bar.tipo === 'relleno') for (let k = 36; k < BAR; k += 3) at(k, 'snare', { v: 0.4 + (k - 36) / 24 });
-    // Bass: eighths on the root (rock) or a syncopated line (funk)
-    const bajo = raiz - 12;
-    if (estilo === 'funk') {
-      [[0, 0], [9, 12], [12, 0], [21, 10], [24, 0], [30, 7], [36, 0], [42, 12]].forEach(([k, i]) => at(k, 'bass', { midi: bajo + i, dur: tick * 4 }));
+      for (let k = 0; k < BAR; k += 3) at(k, 'hat', { v: k % 6 ? 0.3 : 0.6 });
     } else {
-      for (let k = 0; k < BAR; k += 6) at(k, 'bass', { midi: bajo + (k === 42 && nivel >= 4 ? 7 : 0), dur: tick * 5 });
+      for (let b = 0; b < 4; b++) for (const k of [0, 6, 9]) at(b * 12 + k, 'kick', { v: k ? 0.8 : 1 });
+      at(12, 'snare'); at(36, 'snare');
+      for (let k = 0; k < BAR; k += 6) at(k, 'hat', { v: 0.5 });
+      if (bar.i % 2 === 0) at(0, 'crash', { v: 0.45 });
     }
-    // Rhythm guitar: a power chord on the bar, muted eighths from the third part on
-    at(0, 'chord', { midi: raiz, dur: tick * 20 });
-    at(24, 'chord', { midi: raiz, dur: tick * (nivel >= 2 ? 4 : 20), v: nivel >= 2 ? 0.6 : 1 });
-    if (nivel >= 2) for (let k = 30; k < BAR; k += 6) at(k, 'chord', { midi: raiz, dur: tick * 2.5, v: 0.45 });
+    if (bar.tipo === 'relleno') for (let k = 36; k < BAR; k += 3) at(k, 'snare', { v: 0.45 + (k - 36) / 22 });
+    // Bass and rhythm guitar: a power chord on the bar's root
+    const b = r - 12;
+    if (e === 'suave') {
+      at(0, 'bass', { midi: b, dur: tick * 22 }); at(24, 'bass', { midi: b, dur: tick * 22 });
+      at(0, 'chord', { midi: r, dur: tick * 44, v: 0.8 });
+    } else if (e === 'galope') {
+      for (let k = 0; k < 4; k++) for (const x of [0, 6, 9]) { at(k * 12 + x, 'bass', { midi: b, dur: tick * 2.6 }); at(k * 12 + x, 'mute', { midi: r, dur: tick * 2.4 }); }
+    } else {
+      const paso = e === 'duro' ? 3 : 6;
+      for (let k = 0; k < BAR; k += 6) at(k, 'bass', { midi: b + (k === 42 ? 7 : 0), dur: tick * 5 });
+      at(0, 'chord', { midi: r, dur: tick * 11 });
+      at(24, 'chord', { midi: r, dur: tick * 5 });
+      for (let k = 12; k < BAR; k += paso) if (k !== 24) at(k, 'mute', { midi: r, dur: tick * (paso - 0.5) });
+    }
   }
   return ev.sort((a, b) => a.t - b.t);
 }
@@ -254,7 +215,7 @@ export function nuevaPartida(c) {
     estado: c.notas.map(() => ({ golpe: null, soltar: null })),
     cuenta: { perfecto: 0, bien: 0, casi: 0, fallo: 0 },
     // Per part: the judgments' weight and how many, for the result card
-    partes: Array.from({ length: SECCIONES }, () => ({ peso: 0, n: 0 })),
+    partes: c.partes.map(() => ({ peso: 0, n: 0 })),
     siguiente: 0, // the first note not judged yet
     alcanzada: 0, // the furthest part reached
   };
