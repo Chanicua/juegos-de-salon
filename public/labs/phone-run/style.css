@@ -1,0 +1,126 @@
+/* Duende (lab). What is shared lives in assets/css/base.css. */
+
+/* ---------- The intro: an old TV, its glass and its knobs ---------- */
+.intro { display: grid; justify-items: center; gap: 14px; padding-top: 6vh; outline: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tele {
+  position: relative; width: min(86vw, 340px); padding: 18px 18px 46px; border-radius: 26px;
+  background: linear-gradient(160deg, #8a6a4a, #5a3f2a 60%, #3e2a1b); box-shadow: 0 18px 40px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.2);
+  transition: transform 0.42s ease-in, opacity 0.42s ease-in, filter 0.42s;
+}
+.tele-vidrio { position: relative; border-radius: 22px / 30px; overflow: hidden; background: #000; box-shadow: inset 0 0 30px rgba(0,0,0,0.9); }
+.tele-pixeles { display: block; width: 100%; aspect-ratio: 104 / 84; image-rendering: pixelated; image-rendering: crisp-edges; }
+/* The scan lines and the glass's curve */
+.tele-lineas { position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.28) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55)); }
+.tele-perillas { position: absolute; left: 0; right: 0; bottom: 12px; display: flex; justify-content: flex-end; gap: 12px; padding-right: 26px; }
+.tele-perillas span { width: 20px; height: 20px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #d8c3a5, #6b5440); box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
+.tele.falla .tele-pixeles { animation: tele-falla 0.12s steps(2) infinite; }
+@keyframes tele-falla { 0% { filter: hue-rotate(0) saturate(1.4); transform: translateX(-2px); } 100% { filter: hue-rotate(90deg) saturate(2); transform: translateX(2px); } }
+/* Into the game room: the TV comes at you and fades, and the cover opens from it */
+.tele.entra { transform: scale(2.4); opacity: 0; filter: blur(6px) brightness(2); }
+
+/* ---------- The cover ---------- */
+.portada { text-align: center; display: grid; gap: 8px; padding-top: 4px; }
+.portada.aparece { animation: portada-aparece 0.6s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes portada-aparece { 0% { opacity: 0; transform: scale(0.85); filter: blur(4px); } 100% { opacity: 1; transform: none; filter: none; } }
+.retrato { display: block; width: 120px; height: 110px; margin: 0 auto -6px; }
+.titulo-duende { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0; }
+.titulo-duende .rainbow { padding: 0.2em 0.12em 0 0; margin: -0.2em -0.12em 0 0; }
+.titulo-duende .logo { font-size: 2rem; animation: fono-suena 2.6s ease-in-out infinite; }
+.titulo-duende.chico .display { font-size: 1.6rem; }
+.titulo-duende.chico .logo { font-size: 1.4rem; }
+@keyframes fono-suena { 0%, 70%, 100% { transform: rotate(0); } 75% { transform: rotate(-14deg); } 80% { transform: rotate(12deg); } 85% { transform: rotate(-10deg); } 90% { transform: rotate(8deg); } }
+.credito { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.demo-pista { display: block; width: 100%; height: 190px; border-radius: 18px; }
+.pasos { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; text-align: left; }
+.pasos li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; }
+.paso-ico { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 1.1rem; background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); }
+
+/* ---------- The game: the heading, the track and the phone ---------- */
+.cabeza-duende { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.cabeza-duende .titulo-duende { gap: 8px; }
+.mejor-duende { font: 800 0.95rem var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; transition: color 0.3s, text-shadow 0.3s; }
+.mejor-duende.record { color: var(--yellow); text-shadow: 0 0 12px rgba(255, 210, 63, 0.6); }
+
+.escenario {
+  position: relative; height: clamp(230px, calc(100svh - 430px), 520px); border-radius: 20px; overflow: hidden;
+  touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; outline: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.12);
+}
+.escenario.sacude { animation: sacude 0.4s ease-out; }
+@keyframes sacude { 0%, 100% { transform: none; } 20% { transform: translate(-6px, 2px); } 40% { transform: translate(5px, -2px); } 60% { transform: translate(-3px, 1px); } 80% { transform: translate(2px, 0); } }
+.lienzo-pista { display: block; width: 100%; height: 100%; }
+.hud-vidas, .hud-oro, .hud-tramo { position: absolute; top: 10px; pointer-events: none; font: 800 0.95rem var(--font-body); color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.6); }
+.hud-vidas { left: 12px; display: flex; gap: 2px; }
+.hud-vidas .perdida { filter: grayscale(1) brightness(0.6); opacity: 0.5; }
+.hud-oro { right: 12px; font-variant-numeric: tabular-nums; }
+.hud-oro.brilla { animation: oro-brilla 0.3s ease-out; }
+@keyframes oro-brilla { 50% { transform: scale(1.25); color: var(--yellow); } }
+.hud-tramo { left: 0; right: 0; text-align: center; font: 1.15rem var(--font-display); letter-spacing: 0.06em; }
+.aviso-pista {
+  position: absolute; top: 24%; left: 10px; right: 10px; text-align: center; pointer-events: none; opacity: 0; transition: opacity 0.3s;
+  font: 800 1rem/1.3 var(--font-body); color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+}
+.aviso-pista span { display: inline-block; padding: 6px 12px; border-radius: 12px; background: rgba(21, 7, 38, 0.55); }
+.aviso-pista.ve { opacity: 1; }
+.aviso-pista.grande span { font: 1.9rem var(--font-display); letter-spacing: 0.06em; background: none; }
+.aviso-pista.ve.grande span { animation: aviso-pop 0.45s ease-out; }
+.aviso-pista.golpe span { background: rgba(194, 31, 74, 0.75); }
+@keyframes aviso-pop { 0% { transform: scale(0.6); } 60% { transform: scale(1.12); } 100% { transform: none; } }
+
+.pausa-pista {
+  position: absolute; inset: 0; display: grid; place-content: center; gap: 6px; text-align: center; pointer-events: none;
+  background: rgba(21, 7, 38, 0.6); font: 700 1.05rem var(--font-body); color: #fff;
+}
+.pausa-pista[hidden] { display: none; }
+.titulo-pausa { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 2rem; }
+.pausa-pista .display { font-size: 2.6rem; }
+
+/* The phone: a bar phone's face, its little green screen and its keys */
+.fono {
+  margin: 0 auto; width: min(100%, 330px); padding: 10px 14px 14px; border-radius: 26px 26px 34px 34px;
+  background: linear-gradient(170deg, #4a4560, #26223a 70%); box-shadow: 0 12px 30px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.18);
+  display: grid; gap: 8px; -webkit-user-select: none; user-select: none; touch-action: manipulation;
+}
+.fono-parlante { justify-self: center; width: 54px; height: 6px; border-radius: 3px; background: repeating-linear-gradient(90deg, #15121f 0 4px, transparent 4px 7px); }
+.fono-lcd {
+  border-radius: 8px; padding: 5px 10px; background: linear-gradient(#a9c98a, #8fb06f); color: #1f3315; box-shadow: inset 0 2px 4px rgba(0,0,0,0.35);
+  font: 700 0.85rem/1.2 ui-monospace, 'Courier New', monospace; letter-spacing: 0.08em; text-align: center; min-height: 1.2em;
+}
+.teclas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.tecla {
+  position: relative; height: clamp(40px, 6.2svh, 54px); border: 0; border-radius: 14px 14px 18px 18px; cursor: pointer;
+  background: linear-gradient(#5d5878, #3c3756); color: rgba(255,255,255,0.45); box-shadow: 0 3px 0 #15121f;
+  font: 800 1.15rem var(--font-num, var(--font-body)); -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  display: flex; align-items: center; justify-content: center; gap: 6px; transition: transform 0.06s, box-shadow 0.06s;
+}
+.tecla.activa { background: linear-gradient(#ffe27a, #ffc21f); color: #2a1a00; box-shadow: 0 3px 0 #a87400, 0 0 14px rgba(255, 210, 63, 0.35); }
+.tecla .flecha { font-size: 0.95rem; opacity: 0.85; }
+.tecla.apretada { transform: translateY(3px); box-shadow: 0 0 0 #15121f; }
+.tecla.activa.apretada { box-shadow: 0 0 0 #a87400, 0 0 22px rgba(255, 210, 63, 0.8); }
+
+/* ---------- The result, like the other lab games ---------- */
+.resultado { text-align: center; display: grid; gap: 10px; --gap-contenedor: 10px; }
+.resultado .score-big { font: 900 clamp(2.6rem, 14vw, 3.6rem)/1.1 var(--font-num); font-variant-numeric: tabular-nums; color: var(--yellow); text-shadow: 0 4px 0 rgba(0,0,0,0.35); }
+.sello-duende { justify-self: center; margin: 0; font: 1.3rem var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--lime);
+  padding: 2px 12px; border: 3px solid currentColor; border-radius: 10px; transform: rotate(-5deg); animation: pop 0.5s ease-out 0.3s both; }
+.resultado .comentario { text-align: left; }
+.divisor { width: 100%; border: 0; height: 2px; margin: 18px 0 6px; border-radius: 2px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45) 15%, rgba(255, 255, 255, 0.45) 85%, transparent); }
+.desglose { list-style: none; text-align: left; margin: 0 auto; padding: 0; display: grid; gap: 4px; }
+.link-btn { background: none; border: 0; color: var(--muted); font: 700 0.95rem var(--font-body); text-decoration: underline; cursor: pointer; min-height: 44px; margin: 0 auto; display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .titulo-duende .logo, .sello-duende, .aviso-pista span, .escenario.sacude, .portada.aparece { animation: none !important; }
+}
+
+/* A short phone (320×568): the cover's track shrinks so Play stays above the fold (U-39) */
+@media (max-height: 620px) {
+  .demo-pista { height: 120px; }
+  .retrato { height: 80px; width: 90px; }
+  /* and in the game, the track and the keys shrink so the whole phone fits */
+  .escenario { height: 185px; }
+  .fono { gap: 5px; padding: 8px 12px 10px; }
+  .fono-lcd { padding: 3px 10px; }
+  .teclas { gap: 5px; }
+  .tecla { height: 36px; }
+}
