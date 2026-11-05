@@ -47,11 +47,11 @@
 .cover::after { content: ''; width: 24%; aspect-ratio: 1; transform: rotate(45deg); border-radius: 2px; background: rgba(255,255,255,0.2); box-shadow: 0 0 0 3px rgba(0,0,0,0.12); }
 .board.mini .cover { box-shadow: inset 0 3px 0 rgba(255,255,255,0.28), inset 0 -3px 0 rgba(0,0,0,0.35); border-radius: 7px; }
 .pic {
-  transform: rotateY(180deg); background: #241447; border: 2px solid rgba(255,255,255,0.18);
+  transform: rotateY(180deg); background: #2d1b55; border: 2px solid rgba(255,255,255,0.18);
   box-shadow: inset 0 0 0 3px rgba(0,0,0,0.25);
 }
 .board.mini .pic { border-radius: 7px; }
-.pic svg, .pic-icon svg { width: 70%; height: 70%; display: block; image-rendering: pixelated; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.45)); }
+.pic svg, .pic-icon svg { width: 82%; height: 82%; display: block; image-rendering: pixelated; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.45)); }
 .tile.empty .pic::after { content: ''; width: 30%; height: 30%; border-radius: 50%; background: rgba(255,255,255,0.08); }
 .tile.ok .pic { border-color: var(--lime); box-shadow: 0 0 16px rgba(157, 255, 58, 0.55), inset 0 0 0 3px rgba(0,0,0,0.25); }
 .tile.bad .pic { border-color: #ff4d6d; box-shadow: 0 0 16px rgba(255, 77, 109, 0.6); }
@@ -83,8 +83,8 @@
 .prompt-ee.well { color: var(--lime); }
 .prompt-ee.bad { color: #ff8fa3; }
 .prompt-ee.ask { font-size: 1.25rem; }
-.pic-icon { width: 3rem; height: 3rem; display: grid; place-items: center; border-radius: 10px; background: #241447; border: 2px solid var(--yellow); animation: pop 0.3s ease-out; }
-.pic-icon svg { width: 80%; height: 80%; }
+.pic-icon { width: 3rem; height: 3rem; display: grid; place-items: center; border-radius: 10px; background: #2d1b55; border: 2px solid var(--yellow); animation: pop 0.3s ease-out; }
+.pic-icon svg { width: 88%; height: 88%; }
 /* The time left to look */
 .bar-ee { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; opacity: 0; transition: opacity 0.2s; }
 .bar-ee.on { opacity: 1; }

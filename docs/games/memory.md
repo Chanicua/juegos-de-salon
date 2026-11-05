@@ -29,7 +29,7 @@ mixed groups and asks after the first standard rounds.
 | File | What |
 |---|---|
 | `public/labs/memory/engine.js` | The rules, no DOM: the levels, a round, a tap, a game |
-| `public/labs/memory/sprites.js` | The 18 pictures, 8×8 pixels drawn with letters, turned into SVG |
+| `public/labs/memory/sprites.js` | The 45 pictures the owner picked from a board of 100 candidates (2026-11-05): Chilean favourites (flag, piscola, empanada, completo, moai, copihue…), pop and retro, food, symbols and 12 of the first set; 12×12 pixels drawn with letters, turned into SVG. No real people or logos |
 | `public/labs/memory/rules.js` | The texts, es / en / pt |
 | `public/labs/memory/game.js` | The screens and the animations |
 | `public/labs/memory/engine.test.mjs` | The intro, every level up to 80, rounds 1–40, a game, the pictures and the texts' parity |
