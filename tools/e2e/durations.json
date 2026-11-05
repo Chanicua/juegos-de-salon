@@ -55,6 +55,7 @@
  "daily-variants.mjs": 13,
  "daily.mjs": 50,
  "dominorama/lab.mjs": 16,
+ "memory/lab.mjs": 25,
  "exploding-numbers/lab.mjs": 28,
  "favorites.mjs": 46,
  "feedback-prod.mjs": 86,

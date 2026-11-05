@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#150726">
+  <!-- The lab is not announced: it is not in the menu or the search engines (D-101), and without the key nobody gets in (D-281) -->
+  <script src="../../assets/js/labs-puerta.js"></script>
+  <meta name="robots" content="noindex, nofollow">
+  <title>Memorice 👀 · Laboratorio</title>
+  <link rel="icon" href="../../assets/icon.svg" type="image/svg+xml">
+  <script src="../../assets/js/vigia.js"></script>
+  <link rel="preload" href="../../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app" id="app">
+    <div class="topbar">
+      <a class="back" href="../" id="btn-volver">‹ Laboratorio</a>
+      <div class="tools"><span class="chip">👀</span><span id="sound-slot"></span></div>
+    </div>
+    <section id="vista" class="stack"></section>
+    <div id="pie" class="pie"></div>
+  </main>
+  <script type="module">import './game.js';</script>
+</body>
+</html>
