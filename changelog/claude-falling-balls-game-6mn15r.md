@@ -1,0 +1,3 @@
+level: minor
+
+- **🔀 Compuertas, a new game in the lab** (🎲 Juegos en prueba, the owner's idea): balls keep falling from a funnel through a triangle of paddles, a tap flips a paddle, and each ball rolls the way its paddles lean into one of six bins below. The bins' points (1, 2, 3, 5, 10 and 🗑️) shuffle every 10 seconds, shown 2.5 seconds ahead, so the routes keep changing; gold balls score triple, and bombs must go to the 🗑️ (+5) or they blow up (−10). One minute, today's game the same for everyone, the best kept on the phone; Spanish only. A dotted line shows where the next ball would land. [docs/games/gates.md](../docs/games/gates.md).

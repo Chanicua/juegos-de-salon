@@ -475,6 +475,7 @@ node public/labs/code/engine.test.mjs
 node public/labs/dominorama/engine.test.mjs
 node public/labs/exploding-numbers/engine.test.mjs
 node public/labs/fourth-king/engine.test.mjs
+node public/labs/gates/engine.test.mjs
 node public/labs/julep/engine.test.mjs
 node public/labs/stack/engine.test.mjs
 node public/labs/stick/engine.test.mjs
@@ -805,6 +806,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [🎲 Dominorama (lab prototype, in Juegos en prueba)](docs/games/dominorama.md)
 - [💥 Números explosivos (prototipo del laboratorio, en Juegos en prueba)](docs/games/exploding-numbers.md)
 - [Especificación: Cuarto Rey](docs/games/fourth-king.md)
+- [🔀 Compuertas (lab prototype, in Juegos en prueba)](docs/games/gates.md)
 - [Diseño: Generala](docs/games/generala.md)
 - [Diseño: El Ahorcado](docs/games/hangman.md)
 - [Diseño: Julepe](docs/games/julep.md)
