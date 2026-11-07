@@ -1267,6 +1267,9 @@
     "public/labs/fourth-king/engine.js",
     "public/labs/fourth-king/game.js",
     "public/labs/fourth-king/rules.js",
+    "public/labs/gates/engine.js",
+    "public/labs/gates/game.js",
+    "public/labs/gates/scene.js",
     "public/labs/home/experiments.js",
     "public/labs/julep/engine.js",
     "public/labs/julep/game.js",
@@ -1395,6 +1398,7 @@
     "public/labs/dominorama/engine.test.mjs",
     "public/labs/exploding-numbers/engine.test.mjs",
     "public/labs/fourth-king/engine.test.mjs",
+    "public/labs/gates/engine.test.mjs",
     "public/labs/julep/engine.test.mjs",
     "public/labs/listed.test.mjs",
     "public/labs/stack/engine.test.mjs",
@@ -1526,6 +1530,7 @@
     "fourth-king/lab.mjs",
     "fourth-king/languages.mjs",
     "game-memory.mjs",
+    "gates/lab.mjs",
     "generala/languages.mjs",
     "generala/local.mjs",
     "generala/online.mjs",
@@ -1721,6 +1726,10 @@
     {
       "path": "docs/games/fourth-king.md",
       "title": "Especificación: Cuarto Rey"
+    },
+    {
+      "path": "docs/games/gates.md",
+      "title": "🔀 Compuertas (lab prototype, in Juegos en prueba)"
     },
     {
       "path": "docs/games/generala.md",
